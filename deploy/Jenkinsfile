@@ -13,11 +13,10 @@ pipeline {
       }
     }
   }
-  post {
-      always {
+//   post {
+//       always {
 //         sh "./deploy/build.sh reset_git_directory ${params.ENV}"
-//         sh "./deploy/build.sh clear_node_modules ${params.ENV}"
 //         sh "./deploy/build.sh clean_unused_docker ${params.ENV}"
-      }
-    }
+//       }
+//     }
 }
