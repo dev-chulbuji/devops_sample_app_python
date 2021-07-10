@@ -1,4 +1,4 @@
-APP := 'app'
+APP := 'app.py'
 
 all:
 	make env && \
