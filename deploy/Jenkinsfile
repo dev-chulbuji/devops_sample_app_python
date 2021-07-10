@@ -1,0 +1,23 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Build Docker Image') {
+//       when {
+//         expression {
+//           return params.BUILD_DOCKER == 'Y'
+//         }
+//       }
+      steps {
+        sh "make build"
+      }
+    }
+  }
+  post {
+      always {
+//         sh "./deploy/build.sh reset_git_directory ${params.ENV}"
+//         sh "./deploy/build.sh clear_node_modules ${params.ENV}"
+//         sh "./deploy/build.sh clean_unused_docker ${params.ENV}"
+      }
+    }
+}
