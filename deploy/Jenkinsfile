@@ -21,7 +21,7 @@ pipeline {
         echo "Current workspace is ${env.WORKSPACE}"
         echo "Current path is ${pwd}"
 
-        dir(${env.WORKSPACE}) {
+        dir("${env.WORKSPACE}") {
             script {
                 app = docker.build("test")
             }
