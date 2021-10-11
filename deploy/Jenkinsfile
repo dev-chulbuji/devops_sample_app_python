@@ -3,10 +3,14 @@ pipeline {
 
   stages {
     stage('Prepare') {
-        git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
-            branch: "master",
-            credentialId: "dev-chulbuji/access_token_jenkins"
+        steps {
+            echo "Checkout Git Repository"
+            git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
+                branch: "master",
+                credentialId: "dev-chulbuji/access_token_jenkins"
+        }
     }
+
     stage('Build Docker Image') {
 //       when {
 //         expression {
