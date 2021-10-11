@@ -7,7 +7,7 @@ pipeline {
             echo "Checkout Git Repository"
             git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
                 branch: "master",
-                credentialId: "dev-chulbuji/access_token_jenkins"
+                credentialsId: "dev-chulbuji/access_token_jenkins"
         }
     }
 
