@@ -10,6 +10,7 @@ pipeline {
 //       }
       steps {
         echo 'Build Docker Image'
+        cat VERSION
 //         sh "make build"
       }
     }
