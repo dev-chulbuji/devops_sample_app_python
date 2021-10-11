@@ -2,11 +2,11 @@ pipeline {
   agent any
   parameters {
     string(name : 'BUILD_DOCKER', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
+    string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
   }
 
   environment {
-    ACCOUNT_ID = '657976307134'
-    REPOSITORY_NAME = "demo_python"
   }
 
   stages {
@@ -30,7 +30,7 @@ pipeline {
         echo "Current workspace is ${env.WORKSPACE}"
         dir("${env.WORKSPACE}") {
             script {
-                app = docker.build("${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${REPOSITORY_NAME}")
+                app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.REPOSITORY_NAME}")
             }
         }
       }
