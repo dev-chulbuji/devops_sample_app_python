@@ -1,5 +1,8 @@
 pipeline {
   agent any
+  parameters {
+    string(name : 'BUILD_DOCKER', defaultValue : 'Y', description : 'Enable docker image build')
+  }
 
   stages {
 //     stage('Prepare') {
@@ -12,15 +15,14 @@ pipeline {
 //     }
 
     stage('============ Build Docker Image ============') {
-//       when {
-//         expression {
-//           return params.BUILD_DOCKER == 'Y'
-//         }
-//       }
+      when {
+        expression {
+          return params.BUILD_DOCKER == 'Y'
+        }
+      }
+
       steps {
         echo "Current workspace is ${env.WORKSPACE}"
-        echo "Current path is ${pwd}"
-
         dir("${env.WORKSPACE}") {
             script {
                 app = docker.build("test")
