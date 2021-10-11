@@ -4,6 +4,7 @@ pipeline {
     string(name : 'BUILD_DOCKER', defaultValue : 'Y', description : 'Enable docker image build')
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
     string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
+    string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
   }
 
 //   environment {
@@ -30,7 +31,7 @@ pipeline {
         echo "Current workspace is ${env.WORKSPACE}"
         dir("${env.WORKSPACE}") {
             script {
-                app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.REPOSITORY_NAME}")
+                app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}")
             }
         }
       }
