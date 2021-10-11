@@ -6,8 +6,8 @@ pipeline {
     string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
   }
 
-  environment {
-  }
+//   environment {
+//   }
 
   stages {
 //     stage('Prepare') {
