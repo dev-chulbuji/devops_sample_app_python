@@ -2,14 +2,14 @@ pipeline {
   agent any
 
   stages {
-    stage('Prepare') {
-        steps {
-            echo "Checkout Git Repository"
-            git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
-                branch: "master",
-                credentialsId: "dev-chulbuji/access_token_jenkins"
-        }
-    }
+//     stage('Prepare') {
+//         steps {
+//             echo "Checkout Git Repository"
+//             git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
+//                 branch: "master",
+//                 credentialsId: "dev-chulbuji/access_token_jenkins"
+//         }
+//     }
 
     stage('Build Docker Image') {
 //       when {
@@ -18,8 +18,7 @@ pipeline {
 //         }
 //       }
       steps {
-        echo 'Build Docker Image'
-        cat VERSION
+        echo "Current workspace is ${env.WORKSPACE}"
 //         sh "make build"
       }
     }
