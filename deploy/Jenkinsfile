@@ -19,6 +19,7 @@ pipeline {
 //       }
       steps {
         echo "Current workspace is ${env.WORKSPACE}"
+        echo "Current path is ${pwd}"
 //         sh "make build"
       }
     }
