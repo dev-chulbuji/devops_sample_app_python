@@ -22,7 +22,6 @@ pipeline {
         echo "Current path is ${pwd}"
 
         app = docker.build("test")
-//         sh "make build"
       }
     }
   }
