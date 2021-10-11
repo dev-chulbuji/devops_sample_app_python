@@ -17,14 +17,16 @@ pipeline {
 //           return params.BUILD_DOCKER == 'Y'
 //         }
 //       }
-//       steps {
-//         echo "Current workspace is ${env.WORKSPACE}"
-//         echo "Current path is ${pwd}"
-//
-//
-//       }
+      steps {
+        echo "Current workspace is ${env.WORKSPACE}"
+        echo "Current path is ${pwd}"
 
-        app = docker.build("test")
+        dir(${env.WORKSPACE}) {
+            script {
+                app = docker.build("test")
+            }
+        }
+      }
     }
   }
 //   post {
