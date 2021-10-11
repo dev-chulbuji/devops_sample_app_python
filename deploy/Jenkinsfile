@@ -5,7 +5,8 @@ pipeline {
   }
 
   environment {
-    ACCOUNT_ID = '${env.ACCOUNT_ID}'
+    ACCOUNT_ID = '657976307134'
+    REPOSITORY_NAME = "demo_python"
   }
 
   stages {
@@ -27,10 +28,9 @@ pipeline {
 
       steps {
         echo "Current workspace is ${env.WORKSPACE}"
-        echo "AWS ACCOUNT ID is ${env.ACCOUNT_ID}"
         dir("${env.WORKSPACE}") {
             script {
-                app = docker.build("${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/demo_python")
+                app = docker.build("${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${REPOSITORY_NAME}")
             }
         }
       }
