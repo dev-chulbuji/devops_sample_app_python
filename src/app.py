@@ -15,7 +15,7 @@ def healthz():
 def hello():
   return {
     "status": 200,
-    "message": "hello world!"
+    "message": "hello world!!"
   }
 
 
