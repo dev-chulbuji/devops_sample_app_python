@@ -1,16 +1,38 @@
 pipeline {
   agent any
+  parameters {
+    string(name : 'BUILD_DOCKER', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
+    string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
+  }
+
+//   environment {
+//   }
 
   stages {
-    stage('Build Docker Image') {
-//       when {
-//         expression {
-//           return params.BUILD_DOCKER == 'Y'
+//     stage('Prepare') {
+//         steps {
+//             echo "Checkout Git Repository"
+//             git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
+//                 branch: "master",
+//                 credentialsId: "dev-chulbuji/access_token_jenkins"
 //         }
-//       }
+//     }
+
+    stage('============ Build Docker Image ============') {
+      when {
+        expression {
+          return params.BUILD_DOCKER == 'Y'
+        }
+      }
+
       steps {
-        echo 'Build Docker Image'
-//         sh "make build"
+        echo "Current workspace is ${env.WORKSPACE}"
+        dir("${env.WORKSPACE}") {
+            script {
+                app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.REPOSITORY_NAME}")
+            }
+        }
       }
     }
   }
