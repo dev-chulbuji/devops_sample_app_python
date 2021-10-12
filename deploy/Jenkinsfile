@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         steps {
-          echo "Current workspace is ${env.WORKSPACE}"
+          echo "Current workspace is ${env.WORKSPACE}!"
         }
     }
   }
