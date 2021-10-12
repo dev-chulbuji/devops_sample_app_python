@@ -27,6 +27,8 @@ pipeline {
         steps {
             echo "Run pytest"
             sh '''
+                python -m venv .venv
+                source .venv/bin/activate
                 pip install --user -r requirements.txt;
                 pytest -v;
             '''
