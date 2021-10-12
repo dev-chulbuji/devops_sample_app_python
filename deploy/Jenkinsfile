@@ -20,18 +20,18 @@ pipeline {
             docker { image 'python:3.8' }
         }
         when {
-            expression {
-              return params.RUN_TEST == 'Y'
-            }
+            expression { return params.RUN_TEST == 'Y' }
         }
         steps {
-            echo "Run pytest"
-            sh '''
-                python -m venv .venv
-                source .venv/bin/activate
-                pip install --user -r requirements.txt;
-                pytest -v;
-            '''
+            withEnv(["HOME=${env.WORKSPACE}"]) {
+                sh '''
+                      python -m venv .venv
+                      source .venv/bin/activate
+                      pip install --user -r requirements.txt;
+                      pytest -v;
+                   '''
+            }
+
         }
     }
 //     stage('============ Build Docker Image ============') {
