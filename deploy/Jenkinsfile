@@ -8,8 +8,10 @@ pipeline {
   }
 
   stages {
-    steps {
-      echo "Current workspace is ${env.WORKSPACE}"
+    stage('============ Build Docker Image ============') {
+        steps {
+          echo "Current workspace is ${env.WORKSPACE}"
+        }
     }
   }
 }
