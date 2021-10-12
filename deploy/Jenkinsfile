@@ -29,9 +29,11 @@ pipeline {
         }
         steps {
             echo "Run pytest"
-            sh 'cd /src'
-            sh 'pip install -r requirements.txt'
-            sh 'pytest -v'
+            sh '''
+                cd /src;
+                pip install -r requirements.txt;
+                pytest -v;
+            '''
         }
     }
 //     stage('============ Build Docker Image ============') {
