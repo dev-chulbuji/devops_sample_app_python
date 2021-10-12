@@ -1,8 +1,10 @@
 pipeline {
-  agent any
+  agent none
+
   parameters {
     string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
     string(name : 'PUSH_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'RUN_TEST', defaultValue : 'Y', description : 'Run test code')
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
     string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
     string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
@@ -13,25 +15,44 @@ pipeline {
   }
 
   stages {
-    stage('============ Build Docker Image ============') {
+    stage('============ Run test code ============') {
+        agent {
+            docker {
+                image 'python:3.8'
+                args '-v ${env.WORKSPACE}:/src'
+            }
+        }
         when {
             expression {
-              return params.BUILD_DOCKER_IMAGE == 'Y'
+              return params.RUN_TEST == 'Y'
             }
         }
         steps {
-            echo "Current workspace is ${env.WORKSPACE}"
+            echo "Run pytest"
+            sh 'cd /src'
+            sh 'pip install -r requirements.txt'
+            sh 'pytest -v'
         }
     }
-    stage('============ Deploy Docker Image ============') {
-        when {
-            expression {
-              return params.PUSH_DOCKER_IMAGE == 'Y'
-            }
-        }
-        steps {
-            echo "Depeloy Docker Image :: ${DOCKER_IAMGE}"
-        }
-    }
+//     stage('============ Build Docker Image ============') {
+//         when {
+//             expression {
+//               return params.BUILD_DOCKER_IMAGE == 'Y'
+//             }
+//         }
+//         steps {
+//             echo "Current workspace is ${env.WORKSPACE}"
+//         }
+//     }
+//     stage('============ Deploy Docker Image ============') {
+//         when {
+//             expression {
+//               return params.PUSH_DOCKER_IMAGE == 'Y'
+//             }
+//         }
+//         steps {
+//             echo "Depeloy Docker Image :: ${DOCKER_IAMGE}"
+//         }
+//     }
   }
 }
