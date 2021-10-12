@@ -9,7 +9,7 @@ pipeline {
   }
 
   environment {
-    DOCKER_IAMGE: "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
+    DOCKER_IAMGE = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
   }
 
   stages {
