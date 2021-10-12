@@ -7,40 +7,9 @@ pipeline {
     string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
   }
 
-//   environment {
-//   }
-
   stages {
-//     stage('Prepare') {
-//         steps {
-//             echo "Checkout Git Repository"
-//             git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
-//                 branch: "master",
-//                 credentialsId: "dev-chulbuji/access_token_jenkins"
-//         }
-//     }
-
-    stage('============ Build Docker Image ============') {
-//       when {
-//         expression {
-//           return params.BUILD_DOCKER == 'Y'
-//         }
-    }
-
     steps {
       echo "Current workspace is ${env.WORKSPACE}"
-//         dir("${env.WORKSPACE}") {
-//             script {
-//                 app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}")
-//             }
-//         }
-//       }
     }
   }
-//   post {
-//       always {
-//         sh "./deploy/build.sh reset_git_directory ${params.ENV}"
-//         sh "./deploy/build.sh clean_unused_docker ${params.ENV}"
-//       }
-//     }
 }
