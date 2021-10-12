@@ -17,9 +17,7 @@ pipeline {
   stages {
     stage('============ Run test code ============') {
         agent {
-            docker {
-                image 'python:3.8'
-            }
+            docker { image 'python:3.8' }
         }
         when {
             expression {
@@ -29,7 +27,7 @@ pipeline {
         steps {
             echo "Run pytest"
             sh '''
-                pip install -r requirements.txt;
+                pip install --user -r requirements.txt;
                 pytest -v;
             '''
         }
