@@ -19,7 +19,6 @@ pipeline {
         agent {
             docker {
                 image 'python:3.8'
-                args '-v ${env.WORKSPACE}:/src'
             }
         }
         when {
@@ -30,7 +29,6 @@ pipeline {
         steps {
             echo "Run pytest"
             sh '''
-                cd /src;
                 pip install -r requirements.txt;
                 pytest -v;
             '''
