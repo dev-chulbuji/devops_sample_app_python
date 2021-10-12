@@ -12,12 +12,23 @@ pipeline {
 
   environment {
     DOCKER_IAMGE = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
+
+    JENKINS_USER_NAME= "${sh(script:'id -un', returnStdout: true).trim()}"
+    JENKINS_USER_ID= "${sh(script:'id -u', returnStdout: true).trim()}"
+    JENKINS_GROUP_ID= "${sh(script:'id -g', returnStdout: true).trim()}"
   }
 
   stages {
     stage('============ Run test code ============') {
         agent {
-            docker { image 'python:3.8' }
+            docker {
+                image 'python:3.8'
+                additionalBuildArgs '''\
+                    --build-arg GID=$JENKINS_GROUP_ID \
+                    --build-arg UID=$JENKINS_USER_ID \
+                    --build-arg UNAME=$JENKINS_USER_NAME \
+                    '''
+            }
         }
         when {
             expression {
