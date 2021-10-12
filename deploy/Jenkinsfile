@@ -25,7 +25,7 @@ pipeline {
 //         expression {
 //           return params.BUILD_DOCKER == 'Y'
 //         }
-//       }
+    }
 
     steps {
       echo "Current workspace is ${env.WORKSPACE}"
