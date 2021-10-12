@@ -22,7 +22,7 @@ pipeline {
     stage('============ Run test code ============') {
         agent {
             dockerfile {
-                filename 'Dockerfile.build'
+                filename '${env.WORKSPACE}/deploy/Dockerfile.build'
                 additionalBuildArgs '''\
                     --build-arg GID=$JENKINS_GROUP_ID \
                     --build-arg UID=$JENKINS_USER_ID \
