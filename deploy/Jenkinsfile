@@ -21,7 +21,7 @@ pipeline {
   stages {
     stage('============ Run test code ============') {
         agent {
-            docker {
+            dockerfile {
                 filename 'Dockerfile.build'
                 additionalBuildArgs '''\
                     --build-arg GID=$JENKINS_GROUP_ID \
