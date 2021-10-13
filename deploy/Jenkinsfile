@@ -36,6 +36,14 @@ pipeline {
             sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
         }
     }
+    stage('============ Push Docker Image ============') {
+        when {
+            expression { return params.PUSH_DOCKER_IMAGE == 'Y' }
+        }
+        steps {
+            sh('docker push ${DOCKER_IMAGE}')
+        }
+    }
 //     post {
 //         cleanup {
 //             cleanWs()
