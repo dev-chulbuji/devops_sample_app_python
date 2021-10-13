@@ -33,7 +33,7 @@ pipeline {
             expression { return params.RUN_TEST == 'Y' }
         }
         steps {
-            sh('docker run -it --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
+            sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
         }
     }
 //     post {
