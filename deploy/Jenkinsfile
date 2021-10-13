@@ -11,7 +11,8 @@ pipeline {
   }
 
   environment {
-    DOCKER_IMAGE = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
+    ECR_REGISTRY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
+    DOCKER_IMAGE = "${ECR_REGISTRY}/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
   }
 
   stages {
@@ -42,7 +43,7 @@ pipeline {
         }
         steps {
             sh'''
-                $(aws ecr get-login --no-include-email --region ap-northeast-2)
+                $(aws ecr get-login-password --region region | docker login --username AWS --password-stdin ${ECR_REGISTRY})
                 docker push ${DOCKER_IMAGE}
             '''
         }
