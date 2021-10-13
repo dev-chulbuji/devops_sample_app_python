@@ -49,11 +49,12 @@ pipeline {
             '''
         }
     }
-//     post {
-//         cleanup {
-//             cleanWs()
-//         }
-//     }
+    post {
+        cleanup {
+            sh('docker image prune -f')
+            sh('docker container prune -f')
+        }
+    }
 //     stage('============ Deploy Docker Image ============') {
 //         when {
 //             expression {
