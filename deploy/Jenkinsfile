@@ -49,21 +49,11 @@ pipeline {
             '''
         }
     }
-    post {
-        cleanup {
-            sh('docker image prune -f')
-            sh('docker container prune -f')
-        }
+  }
+  post {
+    cleanup {
+        sh('docker image prune -f')
+        sh('docker container prune -f')
     }
-//     stage('============ Deploy Docker Image ============') {
-//         when {
-//             expression {
-//               return params.PUSH_DOCKER_IMAGE == 'Y'
-//             }
-//         }
-//         steps {
-//             echo "Depeloy Docker Image :: ${DOCKER_IMAGE}"
-//         }
-//     }
   }
 }
