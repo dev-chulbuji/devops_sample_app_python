@@ -1,9 +1,6 @@
 pipeline {
-  agent { label 'service || batch'}
-  agent { label 'service && batch'}
-  agent { label 'service'}
-  agent { label 'batch'}
-
+  agent any
+  
   parameters {
     string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'BUILD_DOCKER_IMAGE')
     string(name : 'RUN_TEST', defaultValue : 'Y', description : 'RUN_TEST')
