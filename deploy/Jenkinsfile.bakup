@@ -1,46 +1,59 @@
 pipeline {
   agent any
+
   parameters {
-    string(name : 'BUILD_DOCKER', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'PUSH_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
+    string(name : 'RUN_TEST', defaultValue : 'Y', description : 'Run test code')
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
     string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
     string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
   }
 
-//   environment {
-//   }
+  environment {
+    ECR_REGISTRY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
+    DOCKER_IMAGE = "${ECR_REGISTRY}/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
+    REGION = "ap-northeast-2"
+  }
 
   stages {
-//     stage('Prepare') {
-//         steps {
-//             echo "Checkout Git Repository"
-//             git url: "https://github.com/dev-chulbuji/devops_sample_app_python.git",
-//                 branch: "master",
-//                 credentialsId: "dev-chulbuji/access_token_jenkins"
-//         }
-//     }
-
     stage('============ Build Docker Image ============') {
-      when {
-        expression {
-          return params.BUILD_DOCKER == 'Y'
-        }
-      }
-
-      steps {
-        echo "Current workspace is ${env.WORKSPACE}"
-        dir("${env.WORKSPACE}") {
-            script {
-                app = docker.build("${params.ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}")
+        when {
+            expression {
+              return params.BUILD_DOCKER_IMAGE == 'Y'
             }
         }
-      }
+        steps {
+            echo "Current workspace is ${env.WORKSPACE}"
+            dir("${env.WORKSPACE}") {
+                sh('docker build -t ${DOCKER_IMAGE} .')
+            }
+        }
+    }
+    stage('============ Run test code ============') {
+        when {
+            expression { return params.RUN_TEST == 'Y' }
+        }
+        steps {
+            sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
+        }
+    }
+    stage('============ Push Docker Image ============') {
+        when {
+            expression { return params.PUSH_DOCKER_IMAGE == 'Y' }
+        }
+        steps {
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                docker push ${DOCKER_IMAGE}
+            '''
+        }
     }
   }
-//   post {
-//       always {
-//         sh "./deploy/build.sh reset_git_directory ${params.ENV}"
-//         sh "./deploy/build.sh clean_unused_docker ${params.ENV}"
-//       }
-//     }
+  post {
+    cleanup {
+        sh('docker image prune -f')
+        sh('docker container prune -f')
+    }
+  }
 }

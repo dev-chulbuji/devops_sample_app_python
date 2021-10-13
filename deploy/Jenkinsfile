@@ -2,58 +2,46 @@ pipeline {
   agent any
 
   parameters {
-    string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
-    string(name : 'PUSH_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
-    string(name : 'RUN_TEST', defaultValue : 'Y', description : 'Run test code')
-    string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
-    string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
-    string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
+    string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'BUILD_DOCKER_IMAGE')
+    string(name : 'RUN_TEST', defaultValue : 'Y', description : 'RUN_TEST')
+    string(name : 'PUSH_DOCKER_IMAGE', defaultValue : 'Y', description : 'PUSH_DOCKER_IMAGE')
   }
 
   environment {
-    ECR_REGISTRY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
-    DOCKER_IMAGE = "${ECR_REGISTRY}/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
     REGION = "ap-northeast-2"
   }
 
   stages {
     stage('============ Build Docker Image ============') {
+        agent {
+            docker { image 'python:3.8' }
+        }
         when {
-            expression {
-              return params.BUILD_DOCKER_IMAGE == 'Y'
-            }
+            expression { return params.BUILD_DOCKER_IMAGE == 'Y' }
         }
         steps {
-            echo "Current workspace is ${env.WORKSPACE}"
-            dir("${env.WORKSPACE}") {
-                sh('docker build -t ${DOCKER_IMAGE} .')
-            }
+            echo "Stage Build"
         }
     }
     stage('============ Run test code ============') {
-        when {
-            expression { return params.RUN_TEST == 'Y' }
-        }
+        when { expression { return params.RUN_TEST == 'Y' } }
         steps {
-            sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
+            echo "Stage Test"
         }
     }
     stage('============ Push Docker Image ============') {
-        when {
-            expression { return params.PUSH_DOCKER_IMAGE == 'Y' }
-        }
+        when { expression { return params.PUSH_DOCKER_IMAGE == 'Y' } }
         steps {
-            sh'''
-                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                docker push ${DOCKER_IMAGE}
-            '''
+            echo "Stage Test"
         }
     }
   }
   post {
     cleanup {
-        sh('docker image prune -f')
-        sh('docker container prune -f')
+        echo "Post cleanup"
     }
   }
 }
+
+
+
