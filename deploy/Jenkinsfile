@@ -41,7 +41,10 @@ pipeline {
             expression { return params.PUSH_DOCKER_IMAGE == 'Y' }
         }
         steps {
-            sh('docker push ${DOCKER_IMAGE}')
+            sh'''
+                $(aws ecr get-login --no-include-email --region ap-northeast-2)
+                docker push ${DOCKER_IMAGE}
+            '''
         }
     }
 //     post {
