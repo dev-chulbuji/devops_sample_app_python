@@ -1,5 +1,5 @@
 pipeline {
-  agent none
+  agent any
 
   parameters {
     string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'Enable docker image build')
@@ -11,42 +11,34 @@ pipeline {
   }
 
   environment {
-    DOCKER_IAMGE = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
+    DOCKER_IMAGE = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
   }
 
   stages {
-    stage('============ Run test code ============') {
-        agent {
-            docker { image 'python:3.8' }
+    stage('============ Build Docker Image ============') {
+        when {
+            expression {
+              return params.BUILD_DOCKER_IMAGE == 'Y'
+            }
         }
+        steps {
+            echo "Current workspace is ${env.WORKSPACE}"
+            dir("${env.WORKSPACE}") {
+                sh('docker build -t ${DOCKER_IMAGE} .')
+            }
+        }
+    }
+    stage('============ Run test code ============') {
         when {
             expression { return params.RUN_TEST == 'Y' }
         }
         steps {
-            withEnv(["HOME=${env.WORKSPACE}"]) {
-                sh '''
-                      python -m venv .venv
-                      source .venv/bin/activate
-                      pip install --user -r requirements.txt;
-                      pytest -v;
-                   '''
-            }
-
+            sh('docker run -it --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
         }
     }
-    post {
-        cleanup {
-            cleanWs()
-        }
-    }
-//     stage('============ Build Docker Image ============') {
-//         when {
-//             expression {
-//               return params.BUILD_DOCKER_IMAGE == 'Y'
-//             }
-//         }
-//         steps {
-//             echo "Current workspace is ${env.WORKSPACE}"
+//     post {
+//         cleanup {
+//             cleanWs()
 //         }
 //     }
 //     stage('============ Deploy Docker Image ============') {
@@ -56,7 +48,7 @@ pipeline {
 //             }
 //         }
 //         steps {
-//             echo "Depeloy Docker Image :: ${DOCKER_IAMGE}"
+//             echo "Depeloy Docker Image :: ${DOCKER_IMAGE}"
 //         }
 //     }
   }
