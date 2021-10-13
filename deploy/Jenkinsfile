@@ -1,5 +1,8 @@
 pipeline {
-  agent any
+  agent { label 'service || batch'}
+  agent { label 'service && batch'}
+  agent { label 'service'}
+  agent { label 'batch'}
 
   parameters {
     string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'BUILD_DOCKER_IMAGE')
@@ -21,6 +24,11 @@ pipeline {
         }
         steps {
             echo "Stage Build"
+        }
+        post {
+            always {
+                echo "post"
+            }
         }
     }
     stage('============ Run test code ============') {
