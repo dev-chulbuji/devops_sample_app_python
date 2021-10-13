@@ -29,9 +29,6 @@ pipeline {
         }
     }
     stage('============ Run test code ============') {
-        agent {
-            docker { image: }
-        }
         when {
             expression { return params.RUN_TEST == 'Y' }
         }
