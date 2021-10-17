@@ -71,11 +71,11 @@ pipeline {
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
         steps {
-            sshagent (credentials: ['ec2-user-credential']) {
-                sh '''#!/bin/bash
+            sshagent (credentials: ['aws_ssh']) {
+                sh """#!/bin/bash
                       scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                          deploy/docker-compose.yml ec2-user@"\${params.TARGET_SVR}":/home/ec2-user
-                '''
+                          deploy/docker-compose.yml ec2-user@\${params.TARGET_SVR}:/home/ec2-user
+                """
             }
         }
     }
