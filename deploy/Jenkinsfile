@@ -5,6 +5,8 @@ pipeline {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
+    string(name : 'GIT_URL', defaultValue : '', description : 'GIT_URL', required: true)
+    string(name : 'GIT_BRANCH', defaultValue : '', description : 'GIT_BRANCH', required: true)
   }
 
   environment {
@@ -18,7 +20,7 @@ pipeline {
             echo "Clone repository :: ${params.GIT_URL}"
 
             git url: '${params.GIT_URL}',
-                branch: 'master',
+                branch: '${params.GIT_BRANCH}',
                 credentialsId: 'github_jenkins_token'
         }
     }
