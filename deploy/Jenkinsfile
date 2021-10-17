@@ -41,20 +41,6 @@ pipeline {
             }
         }
     }
-    stage('Prompt for deploy') {
-        steps {
-            input 'Deploy this?'
-
-//             script {
-//                 env.APPROAL_NUM = input message: 'Please enter the approval number',
-//                                   parameters: [string(defaultValue: '',
-//                                                description: '',
-//                                                name: 'APPROVAL_NUM')]
-//             }
-//
-//             echo "${env.APPROAL_NUM}"
-        }
-    }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
@@ -69,6 +55,22 @@ pipeline {
                 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
                 docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
             '''
+        }
+    }
+    stage('Prompt for deploy') {
+        steps {
+//             input 'Deploy this?'
+
+            script {
+                env.APPROAL_NUM = input message: 'Please enter the approval number',
+                                  parameters: [string(defaultValue: '',
+                                               description: '',
+                                               name: 'APPROVAL_NUM')]
+            }
+
+            // 결재를 받은 배포가 맞나?
+
+            echo "${env.APPROAL_NUM}"
         }
     }
     stage('============ Deploy workload ============') {
