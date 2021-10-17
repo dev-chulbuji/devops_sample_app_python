@@ -41,10 +41,10 @@ pipeline {
             }
         }
     }
-//     stage('Prompt for deploy') {
-//         steps {
-//             input 'Deploy this?'
-//
+    stage('Prompt for deploy') {
+        steps {
+            input 'Deploy this?'
+
 //             script {
 //                 env.APPROAL_NUM = input message: 'Please enter the approval number',
 //                                   parameters: [string(defaultValue: '',
@@ -53,8 +53,8 @@ pipeline {
 //             }
 //
 //             echo "${env.APPROAL_NUM}"
-//         }
-//     }
+        }
+    }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
