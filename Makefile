@@ -13,7 +13,7 @@ env:
 	set FLASK_APP=$(APP);
 
 run: 
-	flask run --host 0.0.0.0
+	flask run --host 0.0.0.0 --port
 
 debug:
 	FLASK_APP=$(FLASK_APP) FLASK_ENV=development flask run --host 0.0.0.0

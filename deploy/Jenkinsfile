@@ -34,6 +34,11 @@ pipeline {
             }
         }
     }
+    stage('Prompt for deploy') {
+        steps {
+            input 'Deploy this?'
+        }
+    }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
