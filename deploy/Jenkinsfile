@@ -15,6 +15,11 @@ pipeline {
 
   stages {
     stage('============ Clone repository ============') {
+        when {
+            expression {
+                return params.GIT_URL != '' && params.GIT_BRANCH != ''
+            }
+        }
         steps {
             echo "Current workspace is ${env.WORKSPACE}"
             echo "Clone repository :: ${params.GIT_URL}"
