@@ -8,8 +8,8 @@ pipeline {
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS_ACCOUNT_ID')
-    string(name : 'DOCKER_IMAGE_NAME', defaultValue : 'demo', description : 'DOCKER_IMAGE_NAME')
-    string(name : 'DOCKER_TAG', defaultValue : 'demo', description : 'DOCKER_TAG')
+    string(name : 'DOCKER_IMAGE_NAME', defaultValue : 'demon', description : 'DOCKER_IMAGE_NAME')
+    string(name : 'DOCKER_TAG', defaultValue : '1', description : 'DOCKER_TAG')
   }
 
   environment {
@@ -55,11 +55,6 @@ pipeline {
         steps {
             echo "Deploy workload"
         }
-    }
-  }
-  post {
-    cleanup {
-        echo "Post cleanup"
     }
   }
 }
