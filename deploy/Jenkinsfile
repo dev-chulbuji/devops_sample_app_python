@@ -11,6 +11,7 @@ pipeline {
 
   environment {
     REGION = "ap-northeast-2"
+    GITHUB_TOKEN = "github_jenkins_token"
   }
 
   stages {
@@ -21,13 +22,13 @@ pipeline {
             }
         }
         steps {
-            echo "Current workspace is ${params.WORKSPACE}"
+            echo "Current workspace is ${env.WORKSPACE}"
             echo "Clone repository :: ${params.GIT_URL}"
-            echo "Clone BRANCH :: ${env.GIT_BRANCH}"
+            echo "Clone BRANCH :: ${params.GIT_BRANCH}"
 
-            git url: "${env.GIT_URL}",
-                branch: "${env.GIT_BRANCH.replaceAll('origin/', '')}",
-                credentialsId: 'github_jenkins_token'
+            git url: "${params.GIT_URL}",
+                branch: "${params.GIT_BRANCH.replaceAll('origin/', '')}",
+                credentialsId: "${GITHUB_TOKEN}"
         }
     }
     stage('============ Build Docker Image ============') {
