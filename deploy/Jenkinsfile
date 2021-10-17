@@ -73,8 +73,9 @@ pipeline {
         steps {
             sshagent (credentials: ['aws_ssh']) {
                 sh """#!/bin/bash
-                      scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                          deploy/docker-compose.yml ec2-user@\${params.TARGET_SVR}:/home/ec2-user
+                    echo ${params.TARGET_SVR}
+//                       scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+//                           deploy/docker-compose.yml ec2-user@\${params.TARGET_SVR}:/home/ec2-user
                 """
             }
         }
