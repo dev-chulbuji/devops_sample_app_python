@@ -17,6 +17,14 @@ pipeline {
   }
 
   stages {
+    stage('============ Clone repository ============') {
+        steps {
+            echo "Current workspace is ${env.WORKSPACE}"
+            git url: '${params.GIT_URL}'
+                branch: 'master'
+                credentialsId: 'github_jenkins_token'
+        }
+    }
     stage('============ Build Docker Image ============') {
         when {
             expression {
