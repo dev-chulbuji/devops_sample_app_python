@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         when {
-            expression { return params.BUILD_DOCKER_IMAGE == 'Y' }
+            expression { return params.BUILD_DOCKER_IMAGE }
         }
         steps {
             echo "Stage Build"
@@ -26,13 +26,13 @@ pipeline {
         }
     }
     stage('============ Run test code ============') {
-        when { expression { return params.RUN_TEST == 'Y' } }
+        when { expression { return params.RUN_TEST } }
         steps {
             echo "Stage Test"
         }
     }
     stage('============ Push Docker Image ============') {
-        when { expression { return params.PUSH_DOCKER_IMAGE == 'Y' } }
+        when { expression { return params.PUSH_DOCKER_IMAGE } }
         steps {
             echo "Stage Test"
         }
