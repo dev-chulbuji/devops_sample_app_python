@@ -5,7 +5,7 @@ pipeline {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
-    string(name : 'GIT_URL', defaultValue : "{env.GIT_URL}", description : 'GIT_URL')
+    string(name : 'GIT_URL', defaultValue : "${env.GIT_URL}", description : 'GIT_URL')
     string(name : 'GIT_BRANCH', defaultValue : "${env.GIT_BRANCH.replaceAll('origin/', '')}", description : 'GIT_BRANCH')
   }
 
