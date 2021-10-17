@@ -76,7 +76,7 @@ pipeline {
             sshagent (credentials: ['aws_ssh']) {
                 sh """#!/bin/bash
                     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        deploy/docker-compose.yml ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH}
+                        deploy/docker-compose.yml ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH}/docker-compose.yml
 
                     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                         ${params.TARGET_SVR_USER}@${params.TARGET_SVR} 'docker-compose up -d'
