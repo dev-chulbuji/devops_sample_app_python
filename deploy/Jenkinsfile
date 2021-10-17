@@ -5,8 +5,8 @@ pipeline {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
-    string(name : 'GIT_URL', defaultValue : 'https://github.com/dev-chulbuji/devops_sample_app_python', description : 'GIT_URL')
-    string(name : 'GIT_BRANCH', defaultValue : 'master', description : 'GIT_BRANCH')
+    string(name : 'GIT_URL', defaultValue : "{env.GIT_URL}", description : 'GIT_URL')
+    string(name : 'GIT_BRANCH', defaultValue : "${env.GIT_BRANCH.replaceAll('origin/', '')}", description : 'GIT_BRANCH')
   }
 
   environment {
@@ -23,8 +23,7 @@ pipeline {
         steps {
             echo "Current workspace is ${params.WORKSPACE}"
             echo "Clone repository :: ${params.GIT_URL}"
-            echo "Clone repository :: ${env.GIT_URL}"
-            echo "Clone repository :: ${env.GIT_BRANCH}"
+            echo "Clone BRANCH :: ${env.GIT_BRANCH}"
 
             git url: "${env.GIT_URL}",
                 branch: "${env.GIT_BRANCH.replaceAll('origin/', '')}",
