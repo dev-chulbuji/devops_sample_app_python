@@ -21,7 +21,8 @@ pipeline {
   environment {
     REGION = "ap-northeast-2"
     ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
-    DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}:${params.DOCKER_TAG}"
+    ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}"
+    ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
   }
 
   stages {
@@ -31,7 +32,7 @@ pipeline {
         }
         steps {
             dir("${env.WORKSPACE}") {
-                sh 'docker build -t ${DOCKER_IMAGE} .'
+                sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
             }
         }
         post {
@@ -57,7 +58,7 @@ pipeline {
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
-            sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
+            sh('docker run --rm ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} /root/.local/bin/pytest -v')
         }
     }
     stage('============ Push Docker Image ============') {
@@ -66,7 +67,7 @@ pipeline {
             echo "Push Docker Image to ECR"
             sh'''
                 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
-                docker push ${DOCKER_IMAGE}
+                docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
             '''
         }
     }
@@ -76,10 +77,14 @@ pipeline {
             sshagent (credentials: ['aws_ssh']) {
                 sh """#!/bin/bash
                     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        deploy/docker-compose.yml ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH};
+                        deploy/docker-compose.yml \
+                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH}/docker-compose.${BUILD_NUMBER}.yml;
 
                     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR} 'docker-compose up -d';
+                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
+                        'export IMAGE=${ECR_DOCKER_IMAGE}; \
+                         export TAG=${ECR_DOCKER_TAG}; \
+                         docker-compose -f docker-compose.${BUILD_NUMBER}.yml up -d';
                 """
             }
         }
