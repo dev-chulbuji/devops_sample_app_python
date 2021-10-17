@@ -16,8 +16,9 @@ pipeline {
         steps {
             echo "Current workspace is ${env.WORKSPACE}"
             echo "Clone repository :: ${params.GIT_URL}"
-            git url: '${params.GIT_URL}'
-                branch: 'master'
+
+            git url: '${params.GIT_URL}',
+                branch: 'master',
                 credentialsId: 'github_jenkins_token'
         }
     }
