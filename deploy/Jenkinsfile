@@ -27,7 +27,7 @@ pipeline {
             echo "Clone repository :: ${env.GIT_BRANCH}"
 
             git url: "${env.GIT_URL}",
-                branch: "${env.GIT_BRANCH}.replaceAll('origin/', '')",
+                branch: "${env.GIT_BRANCH.replaceAll('origin/', '')}",
                 credentialsId: 'github_jenkins_token'
         }
     }
