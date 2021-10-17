@@ -21,9 +21,10 @@ pipeline {
             }
         }
         steps {
-            echo 'Current workspace is ${params.WORKSPACE}'
-            echo 'Clone repository :: ${params.GIT_URL}'
-            echo 'Clone repository :: ${env.GIT_URL}'
+            echo "Current workspace is ${params.WORKSPACE}"
+            echo "Clone repository :: ${params.GIT_URL}"
+            echo "Clone repository :: ${env.GIT_URL}"
+            echo "Clone repository :: ${env.GIT_BRANCH}"
 
             git url: "${params.GIT_URL}",
                 branch: "${params.GIT_BRANCH}",
