@@ -17,7 +17,7 @@ pipeline {
             expression { return params.BUILD_DOCKER_IMAGE }
         }
         steps {
-            echo "Stage Build"
+            echo "Stage Build!"
         }
         post {
             always {
