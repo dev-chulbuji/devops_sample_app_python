@@ -5,40 +5,25 @@ pipeline {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
-    string(name : 'GIT_URL', defaultValue : "https://github.com/dev-chulbuji/devops_sample_app_python", description : 'GIT_URL')
-    string(name : 'GIT_BRANCH', defaultValue : "master", description : 'GIT_BRANCH')
   }
 
   environment {
     REGION = "ap-northeast-2"
-    GITHUB_TOKEN = "github_jenkins_token"
   }
 
   stages {
-    stage('============ Clone repository ============') {
-        when {
-            expression {
-                return params.GIT_URL != '' && params.GIT_BRANCH != ''
-            }
-        }
-        steps {
-            echo "Current workspace is ${env.WORKSPACE}"
-
-            git url: "${params.GIT_URL}",
-                branch: "${params.GIT_BRANCH}",
-                credentialsId: "${GITHUB_TOKEN}"
-        }
-    }
     stage('============ Build Docker Image ============') {
         when {
             expression { return params.BUILD_DOCKER_IMAGE }
         }
         steps {
-            echo "Stage Build"
+            dir("${env.WORKSPACE}") {
+                sh 'docker build -t test:1 .'
+            }
         }
         post {
             always {
-                echo "post stage"
+                echo "Docker build success!"
             }
         }
     }

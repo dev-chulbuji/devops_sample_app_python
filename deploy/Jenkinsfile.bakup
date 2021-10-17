@@ -8,21 +8,31 @@ pipeline {
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS account id')
     string(name : 'ECR_REPO_NAME', defaultValue : 'demo_python', description : 'AWS account id')
     string(name : 'ECR_REPO_TAG', defaultValue : 'latest', description : 'AWS account id')
+
+    string(name : 'GIT_URL', defaultValue : "https://github.com/dev-chulbuji/devops_sample_app_python", description : 'GIT_URL')
+    string(name : 'GIT_BRANCH', defaultValue : "master", description : 'GIT_BRANCH')
   }
 
   environment {
     ECR_REGISTRY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
     DOCKER_IMAGE = "${ECR_REGISTRY}/${params.ECR_REPO_NAME}:${params.ECR_REPO_TAG}"
     REGION = "ap-northeast-2"
+    GITHUB_TOKEN = "github_jenkins_token"
   }
 
   stages {
     stage('============ Clone repository ============') {
+        when {
+            expression {
+                return params.GIT_URL != '' && params.GIT_BRANCH != ''
+            }
+        }
         steps {
             echo "Current workspace is ${env.WORKSPACE}"
-            git url: '${params.GIT_URL}'
-                branch: 'master'
-                credentialsId: 'github_jenkins_token'
+
+            git url: "${params.GIT_URL}",
+                branch: "${params.GIT_BRANCH}",
+                credentialsId: "${GITHUB_TOKEN}"
         }
     }
     stage('============ Build Docker Image ============') {
