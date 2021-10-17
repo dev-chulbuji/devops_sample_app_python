@@ -25,8 +25,8 @@ pipeline {
             echo 'Clone repository :: ${params.GIT_URL}'
             echo 'Clone repository :: ${env.GIT_URL}'
 
-            git url: ${params.GIT_URL},
-                branch: ${params.GIT_BRANCH},
+            git url: "${params.GIT_URL}",
+                branch: "${params.GIT_BRANCH}",
                 credentialsId: 'github_jenkins_token'
         }
     }
