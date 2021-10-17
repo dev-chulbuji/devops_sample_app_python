@@ -13,6 +13,8 @@ pipeline {
     string(name : 'DOCKER_TAG', defaultValue : '1.0.0', description : 'DOCKER_TAG')
 
     // CD
+    string(name : 'TARGET_SVR_USER', defaultValue : 'ec2-user', description : 'TARGET_SVR_USER')
+    string(name : 'TARGET_SVR_PATH', defaultValue : 'ec2-user', description : '/home/ec2-user')
     string(name : 'TARGET_SVR', defaultValue : '10.0.3.163', description : 'TARGET_SVR')
   }
 
@@ -75,7 +77,7 @@ pipeline {
                 sh """#!/bin/bash
                     echo ${params.TARGET_SVR}
                     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        deploy/docker-compose.yml ec2-user@${params.TARGET_SVR}:/home/ec2-user
+                        deploy/docker-compose.yml ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH}
                 """
             }
         }
