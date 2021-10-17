@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   parameters {
-    string(name : 'BUILD_DOCKER_IMAGE', defaultValue : 'Y', description : 'BUILD_DOCKER_IMAGE')
-    string(name : 'RUN_TEST', defaultValue : 'Y', description : 'RUN_TEST')
-    string(name : 'PUSH_DOCKER_IMAGE', defaultValue : 'Y', description : 'PUSH_DOCKER_IMAGE')
+    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
+    string(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
+    string(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
   }
 
   environment {
