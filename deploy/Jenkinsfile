@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   parameters {
-    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : false, description : 'BUILD_DOCKER_IMAGE')
-    booleanParam(name : 'RUN_TEST', defaultValue : false, description : 'RUN_TEST')
-    booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : false, description : 'PUSH_DOCKER_IMAGE')
+    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
+    booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
+    booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
     // CI
@@ -85,6 +85,7 @@ pipeline {
                         'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \
                          export IMAGE=${ECR_DOCKER_IMAGE}; \
                          export TAG=${ECR_DOCKER_TAG}; \
+                         docker-compose -f docker-compose.yml down;
                          docker-compose -f docker-compose.yml up -d';
                 """
             }
