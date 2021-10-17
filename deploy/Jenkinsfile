@@ -5,10 +5,17 @@ pipeline {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
+    booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
+
+    string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS_ACCOUNT_ID')
+    string(name : 'DOCKER_IMAGE_NAME', defaultValue : 'demo', description : 'DOCKER_IMAGE_NAME')
+    string(name : 'DOCKER_TAG', defaultValue : 'demo', description : 'DOCKER_TAG')
   }
 
   environment {
     REGION = "ap-northeast-2"
+    ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
+    DOCKER_IMAGE = "${ECR_REPOSITORY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
   }
 
   stages {
@@ -18,7 +25,7 @@ pipeline {
         }
         steps {
             dir("${env.WORKSPACE}") {
-                sh 'docker build -t test:1 .'
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
         post {
@@ -30,13 +37,23 @@ pipeline {
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
-            sh('docker run --rm test:1 /root/.local/bin/pytest -v')
+            sh('docker run --rm ${DOCKER_IMAGE} /root/.local/bin/pytest -v')
         }
     }
     stage('============ Push Docker Image ============') {
         when { expression { return params.PUSH_DOCKER_IMAGE } }
         steps {
-            echo "Stage Test"
+            echo "Push Docker Image to ECR"
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                docker push ${DOCKER_IMAGE}
+            '''
+        }
+    }
+    stage('============ Deploy workload ============') {
+        when { expression { return params.DEPLOY_WORKLOAD } }
+        steps {
+            echo "Deploy workload"
         }
     }
   }
