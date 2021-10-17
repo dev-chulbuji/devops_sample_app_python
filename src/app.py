@@ -14,13 +14,13 @@ def create_app():
   @app.route("/hello")
   def hello():
     return jsonify({
-      "message": "Hello world!\n"
+      "message": "Hello world\n"
     }), 200
 
   @app.route("/hello/<username>")
   def hello_user(username):
     return jsonify({
-      "message": "Hi %s\n" % username
+      "message": "Hello %s\n" % username
     }), 200
 
   return app
