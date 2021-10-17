@@ -8,7 +8,7 @@ def create_app():
   def healthz():
     return {
       "status": 200,
-      "message": "healthy!"
+      "message": "healthy!!"
     }
 
   @app.route("/hello")
