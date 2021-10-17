@@ -75,8 +75,7 @@ pipeline {
 
             dir("${env.WORKSPACE}") {
                 sh'''
-                    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        deploy/docker-compose.yml ec2-user@${params.TARGET_SVR}:/home/ec2-user
+                    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r deploy/docker-compose.yml ec2-user@${params.TARGET_SVR}:/home/ec2-user
                 '''
             }
         }
