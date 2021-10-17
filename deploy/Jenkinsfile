@@ -13,9 +13,6 @@ pipeline {
 
   stages {
     stage('============ Build Docker Image ============') {
-        agent {
-            docker { image 'python:3.8' }
-        }
         when {
             expression { return params.BUILD_DOCKER_IMAGE == 'Y' }
         }
