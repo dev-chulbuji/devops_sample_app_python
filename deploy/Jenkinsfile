@@ -7,9 +7,13 @@ pipeline {
     booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
+    // CI
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS_ACCOUNT_ID')
-    string(name : 'DOCKER_IMAGE_NAME', defaultValue : 'demon', description : 'DOCKER_IMAGE_NAME')
-    string(name : 'DOCKER_TAG', defaultValue : '1', description : 'DOCKER_TAG')
+    string(name : 'DOCKER_IMAGE_NAME', defaultValue : 'demo', description : 'DOCKER_IMAGE_NAME')
+    string(name : 'DOCKER_TAG', defaultValue : '1.0.0', description : 'DOCKER_TAG')
+
+    // CD
+    string(name : 'TARGET_SVR', defaultValue : '10.0.3.163', description : 'TARGET_SVR')
   }
 
   environment {
@@ -34,20 +38,20 @@ pipeline {
             }
         }
     }
-    stage('Prompt for deploy') {
-        steps {
+//     stage('Prompt for deploy') {
+//         steps {
 //             input 'Deploy this?'
-
-            script {
-                env.APPROAL_NUM = input message: 'Please enter the approval number',
-                                  parameters: [string(defaultValue: '',
-                                               description: '',
-                                               name: 'APPROVAL_NUM')]
-            }
-
-            echo "${env.APPROAL_NUM}"
-        }
-    }
+//
+//             script {
+//                 env.APPROAL_NUM = input message: 'Please enter the approval number',
+//                                   parameters: [string(defaultValue: '',
+//                                                description: '',
+//                                                name: 'APPROVAL_NUM')]
+//             }
+//
+//             echo "${env.APPROAL_NUM}"
+//         }
+//     }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
@@ -68,6 +72,13 @@ pipeline {
         when { expression { return params.DEPLOY_WORKLOAD } }
         steps {
             echo "Deploy workload"
+
+            dir("${env.WORKSPACE}") {
+                sh'''
+                    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+                        deploy/docker-compose.yml ec2-user@${params.TARGET_SVR}:/home/ec2-user
+                '''
+            }
         }
     }
   }

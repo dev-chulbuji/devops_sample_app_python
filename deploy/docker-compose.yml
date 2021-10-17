@@ -1,0 +1,7 @@
+version: '3.9'
+services:
+  app:
+    image: ${IMAGE}:${TAG}
+    container_name: demo
+    ports:
+      - "8080:8080"
