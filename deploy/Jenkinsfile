@@ -80,11 +80,10 @@ pipeline {
                         deploy/docker-compose.yml \
                         ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH}/docker-compose.${BUILD_NUMBER}.yml;
 
-                    aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY};
-
                     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                         ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
-                        'export IMAGE=${ECR_DOCKER_IMAGE}; \
+                        'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \
+                         export IMAGE=${ECR_DOCKER_IMAGE}; \
                          export TAG=${ECR_DOCKER_TAG}; \
                          docker-compose -f docker-compose.${BUILD_NUMBER}.yml up -d';
                 """
