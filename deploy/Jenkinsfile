@@ -76,7 +76,7 @@ pipeline {
                 sh'''#!/bin/bash
                     scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                         -i /keys/dev.pem \
-                        -r deploy/docker-compose.yml ec2-user@\${params.TARGET_SVR}:/home/ec2-user
+                        -r deploy/docker-compose.yml ec2-user\@${params.TARGET_SVR}:/home/ec2-user
                 '''
             }
         }
