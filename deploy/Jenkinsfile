@@ -30,7 +30,7 @@ pipeline {
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
         steps {
-            echo "Stage Test"
+            sh('docker run --rm test:1 /root/.local/bin/pytest -v')
         }
     }
     stage('============ Push Docker Image ============') {
