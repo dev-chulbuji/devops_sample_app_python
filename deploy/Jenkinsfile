@@ -17,7 +17,7 @@ pipeline {
     stage('============ Clone repository ============') {
         when {
             expression {
-                return params.GIT_URL != '' && params.GIT_BRANCH != ''
+                return env.GIT_URL != '' && env.GIT_BRANCH != ''
             }
         }
         steps {
