@@ -71,8 +71,6 @@ pipeline {
                                                name: 'APPROVAL_NUM')]
             }
 
-            // 결재를 받은 배포가 맞나?
-
             echo "${env.APPROAL_NUM}"
         }
     }
