@@ -1,6 +1,6 @@
 pipeline {
   agent { label 'master' }
-  
+
   environment {
     REGION = "ap-northeast-2"
     CODEBUILD_NAME = "jenkins-slave-codebuild"
@@ -12,7 +12,7 @@ pipeline {
             awsCodeBuild(
               credentialsType: 'keys',
               projectName: '${CODEBUILD_NAME}',
-              region: '${REGION}',
+              region: "${REGION}",
               sourceControlType: 'jenkins',
               sseAlgorithm: 'AES256',
               buildSpecFile: "deploy/buildspec.yml"
