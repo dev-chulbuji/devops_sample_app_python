@@ -1,29 +1,16 @@
 version: 0.2
+env:
+  variables:
+    AWS_DEFAULT_REGION: "ap-northeast-2"
+    ECR_URL: "657976307134.dkr.ecr.ap-northeast-2.amazonaws.com"
+    ECR_DOCKER_IMAGE: "${ECR_URL}/demo"
+    ECR_DOCKER_TAG: 1.0.0
 
 phases:
-  #install:
-    #commands:
-      # - command
-      # - command
-  #pre_build:
-    #commands:
-      # - command
-      # - command
   build:
     commands:
-      - echo "hello world"
-      # - command
-  #post_build:
-    #commands:
-      # - command
-      # - command
-#artifacts:
-  #files:
-    # - location
-    # - location
-  #name: $(date +%Y-%m-%d)
-  #discard-paths: yes
-  #base-directory: location
-#cache:
-  #paths:
-    # - paths
+      - docker build -t $ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG .
+      - docker push $ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG
+  post_build:
+    commands:
+    - echo "Build finished"
