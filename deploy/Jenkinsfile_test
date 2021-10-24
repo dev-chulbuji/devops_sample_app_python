@@ -1,13 +1,6 @@
 pipeline {
   agent { label 'master' }
-
-  environment {
-    REGION = "ap-northeast-2"
-    ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
-    ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}"
-    ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
-  }
-
+  
   environment {
     REGION = "ap-northeast-2"
     CODEBUILD_NAME = "jenkins-slave-codebuild"
