@@ -11,7 +11,7 @@ pipeline {
         steps {
             awsCodeBuild(
               credentialsType: 'keys',
-              projectName: '${CODEBUILD_NAME}',
+              projectName: "${CODEBUILD_NAME}",
               region: "${REGION}",
               sourceControlType: 'jenkins',
               sseAlgorithm: 'AES256',
