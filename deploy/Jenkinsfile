@@ -29,7 +29,7 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
-        agent { label 'master' }
+        agent { label 'slave' }
         steps {
             dir("${env.WORKSPACE}") {
                 sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
@@ -43,14 +43,14 @@ pipeline {
     }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
-        agent { label 'master' }
+        agent { label 'slave' }
         steps {
             sh('docker run --rm ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} /root/.local/bin/pytest -v')
         }
     }
     stage('============ Push Docker Image ============') {
         when { expression { return params.PUSH_DOCKER_IMAGE } }
-        agent { label 'master' }
+        agent { label 'slave' }
         steps {
             echo "Push Docker Image to ECR"
             sh'''
