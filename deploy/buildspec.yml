@@ -9,7 +9,6 @@ env:
 phases:
   pre_build:
     commands:
-      - printenv
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
   build:
@@ -18,7 +17,6 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t ${ECR_URL}/${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .
-
   post_build:
     commands:
       - echo Build completed on `date`

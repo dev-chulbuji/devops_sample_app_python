@@ -29,7 +29,7 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
-        agent { label 'slave' }
+        agent { label 'master' }
         steps {
             dir("${env.WORKSPACE}") {
                 sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
@@ -43,14 +43,14 @@ pipeline {
     }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
-        agent { label 'slave' }
+        agent { label 'master' }
         steps {
             sh('docker run --rm ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} /root/.local/bin/pytest -v')
         }
     }
     stage('============ Push Docker Image ============') {
         when { expression { return params.PUSH_DOCKER_IMAGE } }
-        agent { label 'slave' }
+        agent { label 'master' }
         steps {
             echo "Push Docker Image to ECR"
             sh'''
@@ -61,7 +61,7 @@ pipeline {
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
-        agent { label 'slave' }
+        agent { label 'master' }
         steps {
 //             input 'Deploy this?'
             script {
@@ -76,7 +76,7 @@ pipeline {
     }
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
-        agent { label 'slave' }
+        agent { label 'master' }
         steps {
             sshagent (credentials: ['aws_ec2_user_ssh']) {
                 sh """#!/bin/bash
