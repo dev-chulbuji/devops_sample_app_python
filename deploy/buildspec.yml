@@ -3,14 +3,24 @@ env:
   variables:
     AWS_DEFAULT_REGION: "ap-northeast-2"
     ECR_URL: "657976307134.dkr.ecr.ap-northeast-2.amazonaws.com"
-    ECR_DOCKER_IMAGE: "${ECR_URL}/demo"
-    ECR_DOCKER_TAG: 1.0.0
+    ECR_DOCKER_IMAGE: "demo"
+    ECR_DOCKER_TAG: "1.0.0"
 
 phases:
-  build:
+  pre_build:
     commands:
-      - docker build -t $ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG .
-      - docker push $ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URL
+  build:
+    on-failure: ABORT
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_URL
+      - docker build -t $ECR_URL/$ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG .
+
   post_build:
     commands:
-    - echo "Build finished"
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $ECR_URL/$ECR_DOCKER_IMAGE:$ECR_DOCKER_TAG
