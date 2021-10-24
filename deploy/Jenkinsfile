@@ -100,16 +100,16 @@ pipeline {
   post {
     success {
       slackSend(
-        channel: "#jenkins",
+        channel: "#jenkins_test",
         color: "good",
-        message: "[Successful] ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.RUN_DISPLAY_URL}|Open>)"
+        message: "[Successful] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} (<${env.RUN_DISPLAY_URL}|open job detail>)"
       )
     }
     failure {
       slackSend(
-        channel: "#jenkins",
+        channel: "#jenkins_test",
         color: "danger",
-        message: "[Failed] ${env.JOB_NAME} #${env.BUILD_NUMBER} @channel (<${env.RUN_DISPLAY_URL}|Open>)"
+        message: "[Failed] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} @channel (<${env.RUN_DISPLAY_URL}|open job detail>)"
       )
     }
   }
