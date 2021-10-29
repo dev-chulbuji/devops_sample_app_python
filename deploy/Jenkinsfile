@@ -29,7 +29,6 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
-        agent { label 'slave' }
         steps {
             dir("${env.WORKSPACE}") {
                 sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
@@ -43,7 +42,6 @@ pipeline {
     }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
-        agent { label 'slave' }
         steps {
             sh'''
                 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
@@ -53,7 +51,6 @@ pipeline {
     }
     stage('============ Push Docker Image ============') {
         when { expression { return params.PUSH_DOCKER_IMAGE } }
-        agent { label 'slave' }
         steps {
             echo "Push Docker Image to ECR"
             sh'''
@@ -103,14 +100,14 @@ pipeline {
   post {
     success {
       slackSend(
-        channel: "#jenkins",
+        channel: "#jenkins_test",
         color: "good",
         message: "[Successful] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} (<${env.RUN_DISPLAY_URL}|open job detail>)"
       )
     }
     failure {
       slackSend(
-        channel: "#jenkins",
+        channel: "#jenkins_test",
         color: "danger",
         message: "[Failed] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} @channel (<${env.RUN_DISPLAY_URL}|open job detail>)"
       )
