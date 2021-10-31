@@ -29,6 +29,7 @@ pipeline {
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
+        agent { label 'build' }
         steps {
             dir("${env.WORKSPACE}") {
                 sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
@@ -42,6 +43,7 @@ pipeline {
     }
     stage('============ Run test code ============') {
         when { expression { return params.RUN_TEST } }
+        agent { label 'build' }
         steps {
             sh'''
                 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
@@ -51,6 +53,7 @@ pipeline {
     }
     stage('============ Push Docker Image ============') {
         when { expression { return params.PUSH_DOCKER_IMAGE } }
+        agent { label 'build' }
         steps {
             echo "Push Docker Image to ECR"
             sh'''
@@ -61,7 +64,7 @@ pipeline {
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
 //             input 'Deploy this?'
             script {
@@ -76,7 +79,7 @@ pipeline {
     }
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
             sshagent (credentials: ['aws_ec2_user_ssh']) {
                 sh """#!/bin/bash
