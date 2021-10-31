@@ -43,7 +43,7 @@ pipeline {
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
 //             input 'Deploy this?'
             script {
@@ -58,7 +58,7 @@ pipeline {
     }
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
             sshagent (credentials: ['aws_ec2_user_ssh']) {
                 sh """#!/bin/bash

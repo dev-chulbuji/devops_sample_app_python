@@ -3,6 +3,8 @@ pipeline {
 
   parameters {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
+    booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
+    booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
     booleanParam(name : 'PROMPT_FOR_DEPLOY', defaultValue : false, description : 'PROMPT_FOR_DEPLOY')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
@@ -22,30 +24,48 @@ pipeline {
     ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
     ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}"
     ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
-
-    CODEBUILD_NAME = "jenkins-slave-codebuild"
   }
 
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
-        agent { label 'master' }
+        agent { label 'build' }
         steps {
-            awsCodeBuild(
-              credentialsType: 'keys',
-              region: "${REGION}",
-              projectName: "${CODEBUILD_NAME}",
-              sourceControlType: 'jenkins',
-              sseAlgorithm: 'AES256',
-              buildSpecFile: "deploy/buildspec.yml"
-            )
+            dir("${env.WORKSPACE}") {
+                sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
+            }
+        }
+        post {
+            always {
+                echo "Docker build success!"
+            }
+        }
+    }
+    stage('============ Run test code ============') {
+        when { expression { return params.RUN_TEST } }
+        agent { label 'build' }
+        steps {
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+                docker run --rm ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} /root/.local/bin/pytest -v
+            '''
+        }
+    }
+    stage('============ Push Docker Image ============') {
+        when { expression { return params.PUSH_DOCKER_IMAGE } }
+        agent { label 'build' }
+        steps {
+            echo "Push Docker Image to ECR"
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+                docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
+            '''
         }
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
         agent { label 'deploy' }
         steps {
-//             input 'Deploy this?'
             script {
                 env.APPROAL_NUM = input message: 'Please enter the approval number',
                                   parameters: [string(defaultValue: '',
@@ -80,13 +100,6 @@ pipeline {
   }
 
   post {
-    success {
-      slackSend(
-        channel: "#jenkins_test",
-        color: "good",
-        message: "[Successful] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} (<${env.RUN_DISPLAY_URL}|open job detail>)"
-      )
-    }
     failure {
       slackSend(
         channel: "#jenkins_test",
