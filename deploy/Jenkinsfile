@@ -42,7 +42,7 @@ pipeline {
               sourceControlType: 'jenkins',
               sseAlgorithm: 'AES256',
               buildSpecFile: "deploy/buildspec.yml",
-              artifactTypeOverride: "S3"
+              artifactTypeOverride: "S3",
               artifactNamespaceOverride: "NONE",
               artifactPathOverride: "${currentBuild.number}"
             )
