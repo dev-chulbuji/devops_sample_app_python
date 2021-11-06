@@ -71,7 +71,7 @@ pipeline {
                 def DEPLOYMENT_ID = sh(script: "cat DEPLOYMENT_ID.json | grep -o '\"deploymentId\": \"[^\"]*' | cut -d'\"' -f4", returnStdout: true).trim()
                 echo "${DEPLOYMENT_ID}"
                 sh "rm -rf ./DEPLOYMENT_ID.json"
-
+                def DEPLOYMENT_RESULT = ""
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
                     DEPLOYMENT_RESULT = withAWS(credentials:"$AWS_CREDENTIALS") {
                         sh(
