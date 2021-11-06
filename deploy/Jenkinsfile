@@ -85,7 +85,7 @@ pipeline {
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
                     DEPLOYMENT_RESULT = sh(
                         script:"aws deploy get-deployment \
-                                    --region ap-northeast-2 \
+                                    --region ${region} \
                                     --query \"deploymentInfo.status\" \
                                     --deployment-id ${DEPLOYMENT_ID}",
                         returnStdout: true
@@ -95,7 +95,7 @@ pipeline {
                         currentBuild.result = 'FAILURE'
                         break
                     }
-                    sleep(10) // sleep 10s
+                    sleep(10)
                 }
                 currentBuild.result = 'SUCCESS'
             }
