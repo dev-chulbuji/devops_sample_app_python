@@ -47,7 +47,7 @@ pipeline {
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
-        agent { label 'deploy' }
+        agent { label 'master' }
         steps {
             script {
                 env.APPROAL_NUM = input message: 'Please enter the approval number',
@@ -79,8 +79,8 @@ pipeline {
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
                     DEPLOYMENT_RESULT = sh(
                         script:"aws deploy get-deployment \
-                                    --query \"deploymentInfo.status\" \
                                     --region ap-northeast-2 \
+                                    --query \"deploymentInfo.status\" \
                                     --deployment-id ${DEPLOYMENT_ID}",
                         returnStdout: true
                     ).trim()
@@ -89,7 +89,7 @@ pipeline {
                         currentBuild.result = 'FAILURE'
                         break
                     }
-                    sleep(50)
+                    sleep(20)
                 }
                 currentBuild.result = 'SUCCESS'
             }
