@@ -25,7 +25,7 @@ pipeline {
 
     CODEBUILD_NAME = "jenkins-slave-codebuild"
     CODEBUILD_ARTIFACT_S3_NAME = "jenkins-slave-artifact-codebuild-s3"
-    CODEBUILD_ARTIFACT_S3_KEY = "jenkins-slave-codebuild"
+    CODEBUILD_ARTIFACT_S3_KEY = "${currentBuild.number}/jenkins-slave-codebuild"
     CODEDEPLOY_NAME = "jenkins-slave-codedeploy-app"
     CODEDEPLOY_GROUP_NAME = "jenkins-slave-codedeploy-group"
   }
