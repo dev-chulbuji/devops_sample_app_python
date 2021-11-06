@@ -25,5 +25,6 @@ phases:
 artifacts:
   files:
     - deploy/appspec.yml
-    - deploy/Makefile
+    - deploy/scripts/kill_process.sh
+    - deploy/scripts/run_process.sh
   discard-paths: yes

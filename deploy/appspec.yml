@@ -4,15 +4,11 @@ files:
   - source: /
     destination: /home/ec2-user
 hooks:
-  BeforeInstall:
-    - location: make init
-      timeout: 300
-      runas: root
   ApplicationStop:
-    - location: make destroy
+    - location: kill_process.sh
       timeout: 20
       runas: ec2-user
   ApplicationStart:
-    - location: make run
+    - location: run_process.sh
       timeout: 10
       runas: ec2-user
