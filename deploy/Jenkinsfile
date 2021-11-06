@@ -58,7 +58,7 @@ pipeline {
         agent { label 'master' }
         steps {
             echo "Run CodeDeploy with creating deployment"
-            try {
+            script {
                 sh'''
                     aws deploy create-deployment \
                         --application-name jenkins-slave-codedeploy-app \
@@ -72,7 +72,6 @@ pipeline {
                 def DEPLOYMENT_ID = readJSON file: './DEPLOYMENT_ID.json'
                 echo "${DEPLOYMENT_ID.deploymentId}"
                 sh "rm -rf ./DEPLOYMENT_ID.json"
-            } catch {
             }
         }
     }
