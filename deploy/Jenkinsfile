@@ -69,6 +69,7 @@ pipeline {
             echo "Run CodeDeploy with creating deployment"
             script {
                 sh'''
+                    echo ${currentBuild.number}
                     aws deploy create-deployment \
                         --application-name ${CODEDEPLOY_NAME} \
                         --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
