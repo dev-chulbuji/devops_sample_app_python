@@ -68,6 +68,10 @@ pipeline {
                     --output json > DEPLOYMENT_ID.json
                 cat DEPLOYMENT_ID.json
             '''
+
+            def DEPLOYMENT_ID = readJSON file: './DEPLOYMENT_ID.json'
+            echo "${DEPLOYMENT_ID.deploymentId}"
+            sh "rm -rf ./DEPLOYMENT_ID.json"
         }
     }
   }
