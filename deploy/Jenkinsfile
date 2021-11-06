@@ -69,7 +69,7 @@ pipeline {
                         --output json > DEPLOYMENT_ID.json
                 '''
                 def DEPLOYMENT_ID = sh(script: "cat DEPLOYMENT_ID.json | grep -o '\"deploymentId\": \"[^\"]*' | cut -d'\"' -f4", returnStdout: true).trim()
-                echo "${DEPLOYMENT_ID.deploymentId}"
+                echo "${DEPLOYMENT_ID}"
                 sh "rm -rf ./DEPLOYMENT_ID.json"
             }
         }
