@@ -27,4 +27,5 @@ artifacts:
     - deploy/appspec.yml
     - deploy/scripts/kill_process.sh
     - deploy/scripts/run_process.sh
+    - deploy/docker-compose.yml
   discard-paths: yes
