@@ -45,7 +45,7 @@ pipeline {
         when { expression { return params.DEPLOY_WORKLOAD } }
         agent { label 'master' }
         steps {
-            echo "Run CodeDeploy"
+            echo "Run CodeDeploy for deployment"
             sh'''
                 aws deploy create-deployment \
                     --application-name jenkins-slave-codedeploy-app \
