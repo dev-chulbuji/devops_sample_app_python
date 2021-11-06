@@ -58,17 +58,20 @@ pipeline {
         agent { label 'master' }
         steps {
             echo "Run CodeDeploy with creating deployment"
-            sh'''
-                aws deploy create-deployment \
-                    --application-name jenkins-slave-codedeploy-app \
-                    --deployment-group-name jenkins-slave-codedeploy-group \
-                    --region ap-northeast-2 \
-                    --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=jenkins-slave-codebuild \
-                    --file-exists-behavior OVERWRITE \
-                    --output json > DEPLOYMENT_ID.json
-                DEPLOYMENT_ID=$(cat DEPLOYMENT_ID.json | grep -o '"deploymentId": "[^"]*' | cut -d'"' -f4)
-                echo $DEPLOYMENT_ID
-            '''
+            script {
+                sh'''
+                    aws deploy create-deployment \
+                        --application-name jenkins-slave-codedeploy-app \
+                        --deployment-group-name jenkins-slave-codedeploy-group \
+                        --region ap-northeast-2 \
+                        --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=jenkins-slave-codebuild \
+                        --file-exists-behavior OVERWRITE \
+                        --output json > DEPLOYMENT_ID.json
+                '''
+                def DEPLOYMENT_ID = sh(script: "cat DEPLOYMENT_ID.json | grep -o '\"deploymentId\": \"[^\"]*' | cut -d'\"' -f4", returnStdout: true).trim()
+                echo "${DEPLOYMENT_ID.deploymentId}"
+                sh "rm -rf ./DEPLOYMENT_ID.json"
+            }
         }
     }
   }
