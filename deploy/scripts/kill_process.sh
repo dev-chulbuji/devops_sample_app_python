@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose -f docker-compose.yml down || true
+docker-compose -f /home/ec2-user/docker-compose.yml down || true
