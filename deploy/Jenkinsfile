@@ -41,7 +41,7 @@ pipeline {
               projectName: "${CODEBUILD_NAME}",
               sourceControlType: 'jenkins',
               sseAlgorithm: 'AES256',
-              buildSpecFile: "deploy/buildspec.yml"
+              buildSpecFile: "deploy/buildspec.yml",
               artifactNamespaceOverride: "${currentBuild.number}"
             )
         }
