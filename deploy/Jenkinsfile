@@ -2,7 +2,7 @@ pipeline {
   agent { label 'master' }
 
   parameters {
-    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : false, description : 'BUILD_DOCKER_IMAGE')
+    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'PROMPT_FOR_DEPLOY', defaultValue : false, description : 'PROMPT_FOR_DEPLOY')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
@@ -24,6 +24,10 @@ pipeline {
     ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
 
     CODEBUILD_NAME = "jenkins-slave-codebuild"
+    CODEBUILD_ARTIFACT_S3_NAME = "jenkins-slave-artifact-codebuild-s3"
+    CODEBUILD_ARTIFACT_S3_KEY = "jenkins-slave-codebuild"
+    CODEDEPLOY_NAME = "jenkins-slave-codedeploy-app"
+    CODEDEPLOY_GROUP_NAME = "jenkins-slave-codedeploy-group"
   }
 
   stages {
@@ -61,10 +65,10 @@ pipeline {
             script {
                 sh'''
                     aws deploy create-deployment \
-                        --application-name jenkins-slave-codedeploy-app \
-                        --deployment-group-name jenkins-slave-codedeploy-group \
-                        --region ap-northeast-2 \
-                        --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=jenkins-slave-codebuild \
+                        --application-name ${CODEDEPLOY_NAME} \
+                        --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
+                        --region ${REGION} \
+                        --s3-location bucket=${CODEBUILD_ARTIFACT_S3_NAME},bundleType=zip,key=${CODEBUILD_ARTIFACT_S3_KEY} \
                         --file-exists-behavior OVERWRITE \
                         --output json > DEPLOYMENT_ID.json
                 '''
@@ -75,17 +79,17 @@ pipeline {
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
                     DEPLOYMENT_RESULT = sh(
                         script:"aws deploy get-deployment \
-                        --query \"deploymentInfo.status\" \
-                        --region ap-northeast-2 \
-                        --deployment-id ${DEPLOYMENT_ID}",
+                                    --query \"deploymentInfo.status\" \
+                                    --region ap-northeast-2 \
+                                    --deployment-id ${DEPLOYMENT_ID}",
                         returnStdout: true
                     ).trim()
                     echo "$DEPLOYMENT_RESULT"
                     if ("$DEPLOYMENT_RESULT" == "\"Failed\"") {
-                        throw new Exception("CodeDeploy Failed")
+                        currentBuild.result = 'FAILURE'
                         break
                     }
-                    sleep(30)
+                    sleep(50)
                 }
                 currentBuild.result = 'SUCCESS'
             }
