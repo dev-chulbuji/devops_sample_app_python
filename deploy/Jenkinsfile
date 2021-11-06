@@ -4,7 +4,7 @@ pipeline {
   parameters {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'PROMPT_FOR_DEPLOY', defaultValue : false, description : 'PROMPT_FOR_DEPLOY')
-    booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : false, description : 'DEPLOY_WORKLOAD')
+    booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
     // CI
     string(name : 'AWS_ACCOUNT_ID', defaultValue : '657976307134', description : 'AWS_ACCOUNT_ID')
@@ -43,8 +43,8 @@ pipeline {
               sseAlgorithm: 'AES256',
               buildSpecFile: "deploy/buildspec.yml",
               artifactTypeOverride: "S3",
-              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}",
               artifactNamespaceOverride: "NONE",
+              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}",
               artifactPathOverride: "${currentBuild.number}",
               artifactPackagingOverride: "ZIP"
             )
@@ -73,7 +73,7 @@ pipeline {
                         --application-name ${CODEDEPLOY_NAME} \
                         --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
                         --region ${REGION} \
-                        --s3-location bucket=${CODEBUILD_ARTIFACT_S3_NAME},bundleType=zip,key=${CODEBUILD_ARTIFACT_S3_KEY} \
+                        --s3-location bucket=${CODEBUILD_ARTIFACT_S3_NAME},bundleType=zip,key=${currentBuild.number}/${CODEBUILD_ARTIFACT_S3_KEY} \
                         --file-exists-behavior OVERWRITE \
                         --output json > DEPLOYMENT_ID.json
                 '''
