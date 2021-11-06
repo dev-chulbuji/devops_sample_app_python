@@ -42,7 +42,7 @@ pipeline {
               sourceControlType: 'jenkins',
               sseAlgorithm: 'AES256',
               buildSpecFile: "deploy/buildspec.yml",
-              artifactNamespaceOverride: "None",
+              artifactNamespaceOverride: "NONE",
               artifactPathOverride: "${currentBuild.number}"
             )
         }
