@@ -4,7 +4,7 @@ files:
   - source: /
     destination: /home/ec2-user
 hooks:
-  AfterInstall:
+  ApplicationStop:
     - location: kill_process.sh
       timeout: 20
       runas: ec2-user
