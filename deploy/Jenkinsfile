@@ -69,19 +69,17 @@ pipeline {
                         --output json > DEPLOYMENT_ID.json
                 '''
                 def DEPLOYMENT_ID = sh(script: "cat DEPLOYMENT_ID.json | grep -o '\"deploymentId\": \"[^\"]*' | cut -d'\"' -f4", returnStdout: true).trim()
-                echo "${DEPLOYMENT_ID}"
+                echo "$DEPLOYMENT_ID"
                 sh "rm -rf ./DEPLOYMENT_ID.json"
                 def DEPLOYMENT_RESULT = ""
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
-                    DEPLOYMENT_RESULT = withAWS(credentials:"$AWS_CREDENTIALS") {
-                        sh(
-                            script:"aws deploy get-deployment \
-                            --query \"deploymentInfo.status\" \
-                            --region ap-northeast-2 \
-                            --deployment-id ${DEPLOYMENT_ID}",
-                            returnStdout: true
-                        ).trim()
-                    }
+                    DEPLOYMENT_RESULT = sh(
+                        script:"aws deploy get-deployment \
+                        --query \"deploymentInfo.status\" \
+                        --region ap-northeast-2 \
+                        --deployment-id ${DEPLOYMENT_ID}",
+                        returnStdout: true
+                    ).trim()
                     echo "$DEPLOYMENT_RESULT"
                     if ("$DEPLOYMENT_RESULT" == "\"Failed\"") {
                         throw new Exception("CodeDeploy Failed")
