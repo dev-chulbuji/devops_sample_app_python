@@ -66,7 +66,7 @@ pipeline {
         when { expression { return params.DEPLOY_WORKLOAD } }
         agent { label 'master' }
         steps {
-            echo "Run CodeDeploy with creating deployment"
+            echo "Run CodeDeploy"
             script {
                 sh'''
                     aws deploy create-deployment \
