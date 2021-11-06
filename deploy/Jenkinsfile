@@ -85,7 +85,7 @@ pipeline {
                 while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
                     DEPLOYMENT_RESULT = sh(
                         script:"aws deploy get-deployment \
-                                    --region ${region} \
+                                    --region ap-northeast-2 \
                                     --query \"deploymentInfo.status\" \
                                     --deployment-id ${DEPLOYMENT_ID}",
                         returnStdout: true
