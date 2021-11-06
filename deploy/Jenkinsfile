@@ -58,21 +58,17 @@ pipeline {
         agent { label 'master' }
         steps {
             echo "Run CodeDeploy with creating deployment"
-            script {
-                sh'''
-                    aws deploy create-deployment \
-                        --application-name jenkins-slave-codedeploy-app \
-                        --deployment-group-name jenkins-slave-codedeploy-group \
-                        --region ap-northeast-2 \
-                        --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=jenkins-slave-codebuild \
-                        --file-exists-behavior OVERWRITE \
-                        --output json > DEPLOYMENT_ID.json
-                    cat DEPLOYMENT_ID.json
-                '''
-                def DEPLOYMENT_ID = readJSON file: './DEPLOYMENT_ID.json'
-                echo "${DEPLOYMENT_ID.deploymentId}"
-                sh "rm -rf ./DEPLOYMENT_ID.json"
-            }
+            sh'''
+                aws deploy create-deployment \
+                    --application-name jenkins-slave-codedeploy-app \
+                    --deployment-group-name jenkins-slave-codedeploy-group \
+                    --region ap-northeast-2 \
+                    --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=jenkins-slave-codebuild \
+                    --file-exists-behavior OVERWRITE \
+                    --output json > DEPLOYMENT_ID.json
+                DEPLOYMENT_ID=$(cat DEPLOYMENT_ID.json | python2 -c "import sys, json; print json.load(sys.stdin)['deploymentId']")
+                echo $DEPLOYMENT_ID
+            '''
         }
     }
   }
