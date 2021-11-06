@@ -2,7 +2,7 @@ pipeline {
   agent { label 'master' }
 
   parameters {
-    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
+    booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : false, description : 'BUILD_DOCKER_IMAGE')
     booleanParam(name : 'PROMPT_FOR_DEPLOY', defaultValue : false, description : 'PROMPT_FOR_DEPLOY')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
@@ -58,24 +58,36 @@ pipeline {
     }
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
-        agent { label 'deploy' }
-        steps {
-            sshagent (credentials: ['aws_ec2_user_ssh']) {
-                sh """#!/bin/bash
-                    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        deploy/docker-compose.yml \
-                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH};
-
-                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
-                        'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \
-                         export IMAGE=${ECR_DOCKER_IMAGE}; \
-                         export TAG=${ECR_DOCKER_TAG}; \
-                         docker-compose -f docker-compose.yml down;
-                         docker-compose -f docker-compose.yml up -d';
-                """
-            }
+        agent { label 'master' }
+        step {
+            awsCodeDeploy(
+                applicationName: "jenkins-slave-codedeploy-app",
+                deploymentGroupName: "jenkins-slave-codedeploy-group",
+                region: 'ap-northeast-2',
+                s3bucket: 'jenkins-slave-artifact-codebuild-s3',
+                s3prefix: '/',
+                versionFileName: 'jenkins-slave-codebuild',
+                waitForCompletion: false
+            )
         }
+//         step([$class: 'AWSCodeDeployPublisher',
+//         applicationName: '',
+//         awsAccessKey: '',
+//          awsSecretKey: '',
+//           credentials: 'awsAccessKey',
+//            deploymentGroupAppspec: false, deploymentGroupName: '',
+//             deploymentMethod: 'deploy',
+//              excludes: '',
+//               iamRoleArn: '',
+//                includes: '**',
+//                 proxyHost: '',
+//                  proxyPort: 0, region: 'ap-northeast-1',
+//                   s3bucket: '',
+//                    s3prefix: '',
+//                     subdirectory: '',
+//                      versionFileName: '',
+//                       waitForCompletion: false])
+
     }
   }
 
