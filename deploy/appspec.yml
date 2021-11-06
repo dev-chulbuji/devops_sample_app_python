@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user
+hooks:
+  BeforeInstall:
+    - location: make init
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: make destroy
+      timeout: 20
+      runas: ec2-user
+  ApplicationStart:
+    - location: make run
+      timeout: 10
+      runas: ec2-user
