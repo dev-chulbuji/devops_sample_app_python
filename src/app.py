@@ -14,7 +14,7 @@ def create_app():
   @app.route("/hello")
   def hello():
     return jsonify({
-      "message": "Hello world\n"
+      "message": "Hello world!\n"
     }), 200
 
   @app.route("/hello/<username>")
