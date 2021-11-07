@@ -44,9 +44,9 @@ pipeline {
               buildSpecFile: "deploy/buildspec.yml",
               artifactTypeOverride: "S3",
               artifactNamespaceOverride: "NONE",
-              artifactPackagingOverride: "ZIP"
+              artifactPackagingOverride: "ZIP",
               artifactPathOverride: "${currentBuild.number}",
-              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}",
+              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}"
             )
         }
     }
