@@ -3,8 +3,7 @@ version: 2.1
 executors:
   dind:
     docker:
-#      - image: novemberde/node-awscli:docker
-      - image: node:slim
+      - image: novemberde/node-awscli:docker
 
 jobs:
   build:
