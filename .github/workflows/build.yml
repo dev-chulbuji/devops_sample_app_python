@@ -13,4 +13,4 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: |
-        docker build -f Dockerfile -t test:$(data +%s) .
+        docker build -f Dockerfile -t my-image-name:$(date +%s) .
