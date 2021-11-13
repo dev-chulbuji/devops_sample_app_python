@@ -8,14 +8,12 @@ executors:
 jobs:
   build:
     executor: dind
-#    docker:
-#      - image: novemberde/node-awscli:docker
     working_directory: ~/devops_sample_app_python
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7 # docker version
+#      - setup_remote_docker:
+#          docker_layer_caching: true
+#          version: 20.10.7 # docker version
       - run: docker build -t test .
 
 workflows:
