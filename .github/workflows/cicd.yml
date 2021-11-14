@@ -21,7 +21,7 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           SLACK_MESSAGE: test
         with:
-          args: --version
+          args: slack
 #  ci:
 #    runs-on: ubuntu-latest
 #    steps:
