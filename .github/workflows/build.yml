@@ -52,3 +52,35 @@ jobs:
       id: push-image
       run: |
         docker push ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }}
+
+    - name: Make zip file
+      run: zip ./$GITHUB_SHA.zip deploy/appspec.yml deploy/scripts/kull_process.sh deploy/scripts/run_process.sh deploy/docker-compose.yml
+      shell: bash
+
+    - name: Upload to S3
+      env:
+        REGION: ap-northeast-2
+        S3_NAME: jenkins-slave-artifact-codebuild-s3
+      run: aws s3 cp --region ${REGION} ./$GITHUB_SHA.zip s3://${S3_NAME}/$GITHUB_SHA.zip
+
+  cd:
+    needs: [ci]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Echo
+      run: echo Start Deploy.
+
+    - name: Create codeDeploy deployment
+      env:
+        REGION: ap-northeast-2
+        CODEDEPLOY_NAME: demo-codedeploy-app
+        CODEDEPLOY_GROUP_NAME: dev-codedeploy-group
+        S3_NAME: jenkins-slave-artifact-codebuild-s3
+        S3_KEY: $GITHUB_SHA
+      run: |
+        aws deploy create-deployment \
+          --application-name ${CODEDEPLOY_NAME} \
+          --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
+          --region ${REGION} \
+          --s3-location bucket=${S3_NAME},bundleType=zip,key=${S3_KEY} \
+          --file-exists-behavior OVERWRITE \
