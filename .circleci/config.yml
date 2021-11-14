@@ -20,6 +20,12 @@ executors:
       - image: circleci/python
 
 jobs:
+  aws-cli-setup:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - run: aws s3 ls
   test:
     executor: circlecipython
     steps:
@@ -31,19 +37,17 @@ jobs:
 workflows:
   build-docker:
     jobs:
-      - aws-ecr/build-and-push-image:
-          name: build-and-push-image
-          context: AWS
-          checkout: true
-          tag: $(cat VERSION)
-          repo: demo
-          filters:
-            branches:
-              only:
-                - master
-      - test:
-          requires:
-            - build-and-push-image
+#      - aws-ecr/build-and-push-image:
+#          name: build-and-push-image
+#          context: AWS
+#          checkout: true
+#          tag: $(cat VERSION)
+#          repo: demo
+#          filters:
+#            branches:
+#              only:
+#                - master
+      - aws-cli-setup:
           context: AWS
           filters:
             branches:
