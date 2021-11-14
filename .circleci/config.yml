@@ -50,6 +50,7 @@ workflows:
           context: AWS
           checkout: false
           tag: '1.0.3'
+          repo: demo
           filters:
             branches:
               only:
