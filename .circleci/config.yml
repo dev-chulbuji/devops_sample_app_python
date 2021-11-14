@@ -6,17 +6,16 @@ orbs:
   aws-s3: circleci/aws-s3@3.0.0
 
 commands:
+  test:
+    steps:
+      - checkout
+      - run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
+      - run: |
+          docker run --rm \
+            $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
+            /root/.local/bin/pytest -v
   upload-s3:
-    test:
-      steps:
-        - checkout
-        - run: |
-            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
-        - run: |
-            docker run --rm \
-              $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
-              /root/.local/bin/pytest -v
-        - run
     steps:
       - checkout
       - run: |
