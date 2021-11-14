@@ -31,7 +31,6 @@ workflows:
       - aws-ecr/build-and-push-image:
           repo: demo
           dockerfile: Dockerfile
-          context: .
           skip-when-tags-exist: false
           tag: '1.0.3'
 #  build-docker:
