@@ -72,8 +72,8 @@ workflows:
 #                - develop
 #                - /feature-.*/
       - upload-s3:
-          requires:
-            - test
+#          requires:
+#            - test
           filters:
             branches:
               only: master
