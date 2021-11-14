@@ -25,7 +25,6 @@ commands:
                     deploy/scripts/run_process.sh \
                     deploy/docker-compose.yml
       - aws-s3/copy:
-          arguments: '--dryrun'
           from: ./$CIRCLE_BUILD_NUM.zip
           to: 's3://jenkins-slave-artifact-codebuild-s3'
 
