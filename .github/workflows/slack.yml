@@ -18,4 +18,4 @@ jobs:
         args: slack
       env:
         SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-        SLACK_MESSAGE: Push event!
+        SLACK_MESSAGE: Push event!!
