@@ -8,6 +8,8 @@ commands:
   test:
     steps:
       - run: |
+          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_ACCOUNT_URL}
+      - run: |
           docker run --rm \
             $AWS_ECR_ACCOUNT_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
             /root/.local/bin/pytest -v
@@ -40,6 +42,8 @@ workflows:
               only:
                 - master
       - test:
+          requires:
+            - build-and-push-image
           context: AWS
           filters:
             branches:
