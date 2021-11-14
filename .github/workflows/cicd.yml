@@ -13,87 +13,96 @@ on:
     branches: [ master ]
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Set var
-      id: set-var
-      run: |
-        echo ::set-output name=ECR_REGISTRY::${{ steps.login-ecr.outputs.registry }}
-        echo ::set-output name=ECR_REPOSITORY::demo
-        echo ::set-output name=IMAGE_TAG::$(cat VERSION)
-
-    - name: Docker image Build
-      id: build-image
-      run: |
-        docker build \
-          -f Dockerfile \
-          -t ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} .
-
-    - name: Workload Test
-      id: test
-      run: |
-        docker run \
-          --rm \
-          ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} \
-          /root/.local/bin/pytest -v
-
-    - name: Docker image Push
-      id: push-image
-      run: |
-        docker push ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }}
-
-    - name: Make zip file
-      run: |
-        zip -j ./$GITHUB_SHA.zip \
-          deploy/appspec.yml \
-          deploy/scripts/kill_process.sh \
-          deploy/scripts/run_process.sh \
-          deploy/docker-compose.yml
-      shell: bash
-
-    - name: Upload to S3
-      env:
-        REGION: ap-northeast-2
-        S3_NAME: jenkins-slave-artifact-codebuild-s3
-      run: aws s3 cp --region ${REGION} ./$GITHUB_SHA.zip s3://${S3_NAME}/$GITHUB_SHA.zip
-
-  cd:
-    needs: [ci]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
-
-    - name: Create codeDeploy deployment
-      env:
-        REGION: ap-northeast-2
-        CODEDEPLOY_NAME: demo-codedeploy-app
-        CODEDEPLOY_GROUP_NAME: dev-codedeploy-group
-        S3_NAME: jenkins-slave-artifact-codebuild-s3
-      run: |
-        aws deploy create-deployment \
-          --application-name ${CODEDEPLOY_NAME} \
-          --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
-          --region ${REGION} \
-          --s3-location bucket=${S3_NAME},bundleType=zip,key=$GITHUB_SHA.zip \
-          --file-exists-behavior OVERWRITE \
+      - uses: dev-chulbuji/devops_custom_actions@master
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_MESSAGE: test
+        with:
+          args: --version
+#  ci:
+#    runs-on: ubuntu-latest
+#    steps:
+#    - uses: actions/checkout@v2
+#      with:
+#        fetch-depth: 1
+#
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ap-northeast-2
+#
+#    - name: Login to Amazon ECR
+#      id: login-ecr
+#      uses: aws-actions/amazon-ecr-login@v1
+#
+#    - name: Set var
+#      id: set-var
+#      run: |
+#        echo ::set-output name=ECR_REGISTRY::${{ steps.login-ecr.outputs.registry }}
+#        echo ::set-output name=ECR_REPOSITORY::demo
+#        echo ::set-output name=IMAGE_TAG::$(cat VERSION)
+#
+#    - name: Docker image Build
+#      id: build-image
+#      run: |
+#        docker build \
+#          -f Dockerfile \
+#          -t ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} .
+#
+#    - name: Workload Test
+#      id: test
+#      run: |
+#        docker run \
+#          --rm \
+#          ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} \
+#          /root/.local/bin/pytest -v
+#
+#    - name: Docker image Push
+#      id: push-image
+#      run: |
+#        docker push ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }}
+#
+#    - name: Make zip file
+#      run: |
+#        zip -j ./$GITHUB_SHA.zip \
+#          deploy/appspec.yml \
+#          deploy/scripts/kill_process.sh \
+#          deploy/scripts/run_process.sh \
+#          deploy/docker-compose.yml
+#      shell: bash
+#
+#    - name: Upload to S3
+#      env:
+#        REGION: ap-northeast-2
+#        S3_NAME: jenkins-slave-artifact-codebuild-s3
+#      run: aws s3 cp --region ${REGION} ./$GITHUB_SHA.zip s3://${S3_NAME}/$GITHUB_SHA.zip
+#
+#  cd:
+#    needs: [ci]
+#    runs-on: ubuntu-latest
+#    steps:
+#    - name: Configure AWS credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ap-northeast-2
+#
+#    - name: Create codeDeploy deployment
+#      env:
+#        REGION: ap-northeast-2
+#        CODEDEPLOY_NAME: demo-codedeploy-app
+#        CODEDEPLOY_GROUP_NAME: dev-codedeploy-group
+#        S3_NAME: jenkins-slave-artifact-codebuild-s3
+#      run: |
+#        aws deploy create-deployment \
+#          --application-name ${CODEDEPLOY_NAME} \
+#          --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
+#          --region ${REGION} \
+#          --s3-location bucket=${S3_NAME},bundleType=zip,key=$GITHUB_SHA.zip \
+#          --file-exists-behavior OVERWRITE \
