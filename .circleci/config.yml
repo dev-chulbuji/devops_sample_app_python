@@ -12,7 +12,7 @@ commands:
           version: 20.10.7 # docker version
       - run: |
           docker build \
-            -t $AWS_ECR_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
+            -t $AWS_ECR_ACCOUNT_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
             .
   test:
     steps:
