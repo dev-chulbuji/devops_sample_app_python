@@ -4,6 +4,7 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
   aws-ecr: circleci/aws-ecr@7.2.0
   aws-s3: circleci/aws-s3@3.0.0
+  aws-code-deploy: circleci/aws-code-deploy@2.0.0
 
 commands:
   test:
@@ -27,6 +28,15 @@ commands:
       - aws-s3/copy:
           from: ./$CIRCLE_BUILD_NUM.zip
           to: 's3://jenkins-slave-artifact-codebuild-s3'
+  create-codedeploy-deployment:
+    steps:
+      - run: |
+          aws deploy create-deployment \
+            --application-name demo-codedeploy-app \
+            --deployment-group-name dev-codedeploy-group \
+            --region $AWS_REGION \
+            --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=70.zip \
+            --file-exists-behavior OVERWRITE
 
 executors:
   circlecipython:
@@ -47,6 +57,12 @@ jobs:
     executor: circlecipython
     steps:
       - upload-s3
+  deploy:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - create-codedeploy-deployment
 
 workflows:
   build-docker:
@@ -69,9 +85,14 @@ workflows:
 #              ignore:
 #                - develop
 #                - /feature-.*/
-      - upload-s3:
+#      - upload-s3:
 #          requires:
 #            - test
+#          context: AWS
+#          filters:
+#            branches:
+#              only: master
+      - deploy:
           context: AWS
           filters:
             branches:
