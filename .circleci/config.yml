@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  aws-ecr: circleci/aws-ecr@7.2.0
+
 commands:
   build:
     steps:
@@ -10,7 +13,6 @@ commands:
       - run: |
           TAG=0.1.$CIRCLE_BUILD_NUM
           docker build -t test:$TAG .
-          echo $DOCKER_PASS
 
 executors:
   dind:
@@ -24,12 +26,21 @@ jobs:
       - build
 
 workflows:
-  version: 2
-  build-docker:
+  build_and_push_image:
     jobs:
-      - build:
-          filters:
-            branches:
-              ignore:
-                - develop
-                - /feature-.*/
+      - aws-ecr/build-and-push-image:
+          account-url: 657976307134.dkr.ecr.ap-northeast-2.amazonaws.com
+          repo: demo
+          dockerfile: Dockerfile
+          context: .
+          region: ap-northeast-2
+          skip-when-tags-exist: false
+          tag: '1.0.3'
+#  build-docker:
+#    jobs:
+#      - build:
+#          filters:
+#            branches:
+#              ignore:
+#                - develop
+#                - /feature-.*/
