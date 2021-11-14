@@ -13,7 +13,7 @@ commands:
       - run: |
           docker build \
             -t $AWS_ECR_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
-            -t $AWS_ECR_URL/$APP_NAME:latest .
+            .
   test:
     steps:
       - run: |
