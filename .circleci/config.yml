@@ -40,6 +40,8 @@ workflows:
   build-docker:
     jobs:
       - build:
+          context:
+            - AWS
           filters:
             branches:
               ignore:
