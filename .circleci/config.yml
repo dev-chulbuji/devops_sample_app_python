@@ -43,7 +43,7 @@ workflows:
 #            branches:
 #              only:
 #                - master
-      - aws-cli-setup:
+      - test:
           context: AWS
           filters:
             branches:
