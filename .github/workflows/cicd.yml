@@ -63,7 +63,7 @@ jobs:
         zip -j \
           ./$GITHUB_SHA.zip \
           deploy/appspec.yml \
-          deploy/scripts/kull_process.sh \
+          deploy/scripts/kill_process.sh \
           deploy/scripts/run_process.sh \
           deploy/docker-compose.yml
       shell: bash
