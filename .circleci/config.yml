@@ -45,6 +45,8 @@ workflows:
               only:
                 - master
       - test:
+          requires:
+            - build-and-push-image
           context: AWS
           filters:
             branches:
