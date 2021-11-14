@@ -60,8 +60,7 @@ jobs:
 
     - name: Make zip file
       run: |
-        zip -j \
-          ./$GITHUB_SHA.zip \
+        zip -j ./$GITHUB_SHA.zip \
           deploy/appspec.yml \
           deploy/scripts/kill_process.sh \
           deploy/scripts/run_process.sh \
