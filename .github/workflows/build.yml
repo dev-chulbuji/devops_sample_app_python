@@ -80,11 +80,10 @@ jobs:
         CODEDEPLOY_NAME: demo-codedeploy-app
         CODEDEPLOY_GROUP_NAME: dev-codedeploy-group
         S3_NAME: jenkins-slave-artifact-codebuild-s3
-        S3_KEY: $GITHUB_SHA
       run: |
         aws deploy create-deployment \
           --application-name ${CODEDEPLOY_NAME} \
           --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
           --region ${REGION} \
-          --s3-location bucket=${S3_NAME},bundleType=zip,key=${S3_KEY} \
+          --s3-location bucket=${S3_NAME},bundleType=zip,key=$GITHUB_SHA \
           --file-exists-behavior OVERWRITE \
