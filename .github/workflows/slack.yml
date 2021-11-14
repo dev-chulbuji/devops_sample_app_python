@@ -1,0 +1,21 @@
+name: Send Slack message
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '.gitignore'
+      - '.dockerignore'
+      - 'README.md'
+
+jobs:
+  slack:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send slack message
+      uses: dev-chulbuji/devops_custom_actions@master
+      with:
+        args: slack
+      env:
+        SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+        SLACK_MESSAGE: Push event!
