@@ -1,12 +1,12 @@
 name: Send Slack message
 
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-      - '.gitignore'
-      - '.dockerignore'
-      - 'README.md'
+#  push:
+#    branches: [ master ]
+#    paths-ignore:
+#      - '.gitignore'
+#      - '.dockerignore'
+#      - 'README.md'
 
 jobs:
   slack:

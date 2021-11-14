@@ -1,5 +1,14 @@
 version: 2.1
 
+commands:
+  build:
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7 # docker version
+      - run: docker build -t test .
+
 executors:
   dind:
     docker:
@@ -10,11 +19,7 @@ jobs:
     executor: dind
     working_directory: ~/devops_sample_app_python
     steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.7 # docker version
-      - run: docker build -t test .
+      - build
 
 workflows:
   version: 2
