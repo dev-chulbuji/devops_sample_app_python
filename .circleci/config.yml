@@ -5,25 +5,12 @@ orbs:
   aws-ecr: circleci/aws-ecr@7.2.0
 
 commands:
-  build:
-    steps:
-      - run: |
-          docker build \
-            -t $AWS_ECR_ACCOUNT_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
-            .
   test:
     steps:
       - run: |
           docker run --rm \
             $AWS_ECR_ACCOUNT_URL/$APP_NAME:$CIRCLE_BUILD_NUM \
             /root/.local/bin/pytest -v
-  push:
-    steps:
-      - run: # Install the AWS CLI if it is not already included in the docker image
-          name: Install awscli
-          command: sudo pip install awscli
-      - run: |
-          docker push $AWS_ECR_ACCOUNT_URL/$APP_NAME:$CIRCLE_BUILD_NUM
 
 executors:
   circlecipython:
@@ -34,13 +21,10 @@ jobs:
   ci:
     executor: circlecipython
     steps:
-      - checkout
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.7 # docker version
-      - build
       - test
-      - push
 
 workflows:
   build-docker:
@@ -55,11 +39,10 @@ workflows:
             branches:
               only:
                 - master
-#      - ci:
-#          context:
-#            - AWS
-#          filters:
-#            branches:
-#              ignore:
-#                - develop
-#                - /feature-.*/
+      - test:
+          context: AWS
+          filters:
+            branches:
+              ignore:
+                - develop
+                - /feature-.*/
