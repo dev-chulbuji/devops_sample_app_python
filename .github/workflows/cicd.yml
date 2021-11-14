@@ -16,12 +16,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: dev-chulbuji/devops_custom_actions@master
-        env:
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_MESSAGE: test
-        with:
-          args: slack
+    - name: Send slack message
+      uses: dev-chulbuji/devops_custom_actions@master
+      with:
+        args: slack
+      env:
+        SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+        SLACK_MESSAGE: test
 #  ci:
 #    runs-on: ubuntu-latest
 #    steps:
