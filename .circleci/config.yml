@@ -15,10 +15,10 @@ commands:
             $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
             /root/.local/bin/pytest -v
 
-executors:
-  circlecipython:
-    docker:
-      - image: circleci/python
+#executors:
+#  circlecipython:
+#    docker:
+#      - image: circleci/python
 
 jobs:
   test:
@@ -34,16 +34,16 @@ jobs:
 workflows:
   build-docker:
     jobs:
-#      - aws-ecr/build-and-push-image:
-#          name: build-and-push-image
-#          context: AWS
-#          checkout: true
-#          tag: $(cat VERSION)
-#          repo: demo
-#          filters:
-#            branches:
-#              only:
-#                - master
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only:
+                - master
       - test:
           context: AWS
           filters:
