@@ -21,10 +21,10 @@ commands:
       - checkout
       - run: |
           zip -j ./$CIRCLE_BUILD_NUM.zip \
-                    deploy/appspec.yml \
-                    deploy/scripts/kill_process.sh \
-                    deploy/scripts/run_process.sh \
-                    deploy/docker-compose.yml
+            deploy/appspec.yml \
+            deploy/scripts/kill_process.sh \
+            deploy/scripts/run_process.sh \
+            deploy/docker-compose.yml
       - aws-s3/copy:
           from: ./$CIRCLE_BUILD_NUM.zip
           to: 's3://jenkins-slave-artifact-codebuild-s3'
@@ -53,15 +53,12 @@ jobs:
           docker_layer_caching: true
           version: 20.10.7 # docker version
       - test
-  upload-s3:
-    executor: circlecipython
-    steps:
-      - upload-s3
   deploy:
     executor: aws-cli/default
     steps:
       - aws-cli/setup:
           profile-name: default
+      - upload-s3
       - create-codedeploy-deployment
 
 workflows:
@@ -80,22 +77,7 @@ workflows:
           requires:
             - build-and-push-image
           context: AWS
-          filters:
-            branches:
-              ignore:
-                - develop
-                - /feature-.*/
-      - upload-s3:
+      - deploy:
           requires:
             - test
           context: AWS
-          filters:
-            branches:
-              only: master
-      - deploy:
-          context: AWS
-          requires:
-            - upload-s3
-          filters:
-            branches:
-              only: master
