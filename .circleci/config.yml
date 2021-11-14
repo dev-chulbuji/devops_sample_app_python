@@ -18,7 +18,7 @@ executors:
       - image: circleci/python
 
 jobs:
-  ci:
+  test:
     executor: circlecipython
     steps:
       - setup_remote_docker:
@@ -33,7 +33,7 @@ workflows:
           name: build-and-push-image
           context: AWS
           checkout: true
-          tag: '1.0.3'
+          tag: $(cat VERSION)
           repo: demo
           filters:
             branches:
