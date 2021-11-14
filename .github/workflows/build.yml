@@ -85,5 +85,5 @@ jobs:
           --application-name ${CODEDEPLOY_NAME} \
           --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
           --region ${REGION} \
-          --s3-location bucket=${S3_NAME},bundleType=zip,key=$GITHUB_SHA \
+          --s3-location bucket=${S3_NAME},bundleType=zip,key=$GITHUB_SHA.zip \
           --file-exists-behavior OVERWRITE \
