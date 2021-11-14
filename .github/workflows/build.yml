@@ -27,28 +27,28 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-northeast-2
 
-    - name: Get version
-      id: get-version
-      run: echo ::set-output name=version::$(cat VERSION)
-
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: demo
-        IMAGE_TAG: ${{ steps.get-version.outputs.version }}
+    - name: Set var
+      id: set-var
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        echo ::set-output name=ECR_REGISTRY::${{ steps.login-ecr.outputs.registry }}
+        echo ::set-output name=ECR_REPOSITORY::demo
+        echo ::set-output name=IMAGE_TAG::$(cat VERSION)
 
-    - name: Push ECR
-      id: push-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: demo
-        IMAGE_TAG: ${{ steps.get-version.outputs.version }}
+    - name: Build
+      id: build-image
       run: |
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} .
+
+    - name: Test
+      id: test
+      run: |
+        docker run --rm ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }} /root/.local/bin/pytest -v
+
+    - name: Push
+      id: push-image
+      run: |
+        docker push ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }}
