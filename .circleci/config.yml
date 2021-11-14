@@ -29,11 +29,9 @@ workflows:
   build_and_push_image:
     jobs:
       - aws-ecr/build-and-push-image:
-          account-url: 657976307134.dkr.ecr.ap-northeast-2.amazonaws.com
           repo: demo
           dockerfile: Dockerfile
           context: .
-          region: ap-northeast-2
           skip-when-tags-exist: false
           tag: '1.0.3'
 #  build-docker:
