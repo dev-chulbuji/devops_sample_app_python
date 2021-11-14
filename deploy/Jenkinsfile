@@ -3,6 +3,8 @@ pipeline {
 
   parameters {
     booleanParam(name : 'BUILD_DOCKER_IMAGE', defaultValue : true, description : 'BUILD_DOCKER_IMAGE')
+    booleanParam(name : 'RUN_TEST', defaultValue : true, description : 'RUN_TEST')
+    booleanParam(name : 'PUSH_DOCKER_IMAGE', defaultValue : true, description : 'PUSH_DOCKER_IMAGE')
     booleanParam(name : 'PROMPT_FOR_DEPLOY', defaultValue : false, description : 'PROMPT_FOR_DEPLOY')
     booleanParam(name : 'DEPLOY_WORKLOAD', defaultValue : true, description : 'DEPLOY_WORKLOAD')
 
@@ -22,41 +24,53 @@ pipeline {
     ECR_REPOSITORY = "${params.AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com"
     ECR_DOCKER_IMAGE = "${ECR_REPOSITORY}/${params.DOCKER_IMAGE_NAME}"
     ECR_DOCKER_TAG = "${params.DOCKER_TAG}"
-
-    CODEBUILD_NAME = "jenkins-slave-codebuild"
-    CODEBUILD_ARTIFACT_S3_NAME = "jenkins-slave-artifact-codebuild-s3"
-    CODEBUILD_ARTIFACT_S3_KEY = "${currentBuild.number}/jenkins-slave-codebuild"
-    CODEDEPLOY_NAME = "demo-codedeploy-app"
-    CODEDEPLOY_GROUP_NAME = "dev-codedeploy-group"
   }
 
   stages {
     stage('============ Build Docker Image ============') {
         when { expression { return params.BUILD_DOCKER_IMAGE } }
-        agent { label 'master' }
+        agent { label 'build' }
         steps {
-            awsCodeBuild(
-              credentialsType: 'keys',
-              region: "${REGION}",
-              projectName: "${CODEBUILD_NAME}",
-              sourceControlType: 'jenkins',
-              sseAlgorithm: 'AES256',
-              buildSpecFile: "deploy/buildspec.yml",
-              artifactTypeOverride: "S3",
-              artifactNamespaceOverride: "NONE",
-              artifactPackagingOverride: "ZIP",
-              artifactPathOverride: "${currentBuild.number}",
-              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}"
-            )
+            dir("${env.WORKSPACE}") {
+                sh 'docker build -t ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} .'
+            }
+        }
+        post {
+            always {
+                echo "Docker build success!"
+            }
+        }
+    }
+    stage('============ Run test code ============') {
+        when { expression { return params.RUN_TEST } }
+        agent { label 'build' }
+        steps {
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+                docker run --rm ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG} /root/.local/bin/pytest -v
+            '''
+        }
+    }
+    stage('============ Push Docker Image ============') {
+        when { expression { return params.PUSH_DOCKER_IMAGE } }
+        agent { label 'build' }
+        steps {
+            echo "Push Docker Image to ECR"
+            sh'''
+                aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}
+                docker push ${ECR_DOCKER_IMAGE}:${ECR_DOCKER_TAG}
+            '''
         }
     }
     stage('Prompt for deploy') {
         when { expression { return params.PROMPT_FOR_DEPLOY } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
             script {
                 env.APPROAL_NUM = input message: 'Please enter the approval number',
-                                        parameters: [string(defaultValue: '', description: '', name: 'APPROVAL_NUM')]
+                                  parameters: [string(defaultValue: '',
+                                               description: '',
+                                               name: 'APPROVAL_NUM')]
             }
 
             echo "${env.APPROAL_NUM}"
@@ -64,55 +78,31 @@ pipeline {
     }
     stage('============ Deploy workload ============') {
         when { expression { return params.DEPLOY_WORKLOAD } }
-        agent { label 'master' }
+        agent { label 'deploy' }
         steps {
-            echo "Run CodeDeploy with creating deployment"
-            script {
-                sh'''
-                    aws deploy create-deployment \
-                        --application-name ${CODEDEPLOY_NAME} \
-                        --deployment-group-name ${CODEDEPLOY_GROUP_NAME} \
-                        --region ${REGION} \
-                        --s3-location bucket=${CODEBUILD_ARTIFACT_S3_NAME},bundleType=zip,key=${CODEBUILD_ARTIFACT_S3_KEY} \
-                        --file-exists-behavior OVERWRITE \
-                        --output json > DEPLOYMENT_ID.json
-                '''
-                def DEPLOYMENT_ID = sh(script: "cat DEPLOYMENT_ID.json | grep -o '\"deploymentId\": \"[^\"]*' | cut -d'\"' -f4", returnStdout: true).trim()
-                echo "$DEPLOYMENT_ID"
-                sh "rm -rf ./DEPLOYMENT_ID.json"
-                def DEPLOYMENT_RESULT = ""
-                while("$DEPLOYMENT_RESULT" != "\"Succeeded\"") {
-                    DEPLOYMENT_RESULT = sh(
-                        script:"aws deploy get-deployment \
-                                    --region ${REGION} \
-                                    --query \"deploymentInfo.status\" \
-                                    --deployment-id ${DEPLOYMENT_ID}",
-                        returnStdout: true
-                    ).trim()
-                    echo "$DEPLOYMENT_RESULT"
-                    if ("$DEPLOYMENT_RESULT" == "\"Failed\"") {
-                        currentBuild.result = 'FAILURE'
-                        break
-                    }
-                    sleep(10) // sleep 10s
-                }
-                currentBuild.result = 'SUCCESS'
+            sshagent (credentials: ['aws_ec2_user_ssh']) {
+                sh """#!/bin/bash
+                    scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+                        deploy/docker-compose.yml \
+                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR}:${params.TARGET_SVR_PATH};
+
+                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
+                        ${params.TARGET_SVR_USER}@${params.TARGET_SVR} \
+                        'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPOSITORY}; \
+                         export IMAGE=${ECR_DOCKER_IMAGE}; \
+                         export TAG=${ECR_DOCKER_TAG}; \
+                         docker-compose -f docker-compose.yml down;
+                         docker-compose -f docker-compose.yml up -d';
+                """
             }
         }
     }
   }
 
   post {
-    success {
-      slackSend(
-        channel: "#jenkins",
-        color: "good",
-        message: "[Successful] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} (<${env.RUN_DISPLAY_URL}|open job detail>)"
-      )
-    }
     failure {
       slackSend(
-        channel: "#jenkins",
+        channel: "#jenkins_test",
         color: "danger",
         message: "[Failed] Job:${env.JOB_NAME}, Build num:#${env.BUILD_NUMBER} @channel (<${env.RUN_DISPLAY_URL}|open job detail>)"
       )

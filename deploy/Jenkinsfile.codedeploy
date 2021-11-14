@@ -43,10 +43,10 @@ pipeline {
               sseAlgorithm: 'AES256',
               buildSpecFile: "deploy/buildspec.yml",
               artifactTypeOverride: "S3",
-              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}",
               artifactNamespaceOverride: "NONE",
+              artifactPackagingOverride: "ZIP",
               artifactPathOverride: "${currentBuild.number}",
-              artifactPackagingOverride: "ZIP"
+              artifactLocationOverride: "${CODEBUILD_ARTIFACT_S3_NAME}"
             )
         }
     }
