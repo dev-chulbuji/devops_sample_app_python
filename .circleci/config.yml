@@ -7,6 +7,16 @@ orbs:
 
 commands:
   upload-s3:
+    test:
+      steps:
+        - checkout
+        - run: |
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
+        - run: |
+            docker run --rm \
+              $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
+              /root/.local/bin/pytest -v
+        - run
     steps:
       - checkout
       - run: |
@@ -19,16 +29,6 @@ commands:
           arguments: '--dryrun'
           from: ./$CIRCLE_BUILD_NUM.zip
           to: 's3://jenkins-slave-artifact-codebuild-s3'
-  test:
-    steps:
-      - checkout
-      - run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
-      - run: |
-          docker run --rm \
-            $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
-            /root/.local/bin/pytest -v
-      - run
 
 executors:
   circlecipython:
@@ -74,6 +74,7 @@ workflows:
       - upload-s3:
 #          requires:
 #            - test
+          context: AWS
           filters:
             branches:
               only: master
