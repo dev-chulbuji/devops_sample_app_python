@@ -35,7 +35,7 @@ commands:
             --application-name demo-codedeploy-app \
             --deployment-group-name dev-codedeploy-group \
             --region $AWS_REGION \
-            --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=70.zip \
+            --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=$CIRCLE_BUILD_NUM.zip \
             --file-exists-behavior OVERWRITE
 
 executors:
@@ -67,33 +67,35 @@ jobs:
 workflows:
   build-docker:
     jobs:
-#      - aws-ecr/build-and-push-image:
-#          name: build-and-push-image
-#          context: AWS
-#          checkout: true
-#          tag: $(cat VERSION)
-#          repo: demo
-#          filters:
-#            branches:
-#              only: master
-#      - test:
-#          requires:
-#            - build-and-push-image
-#          context: AWS
-#          filters:
-#            branches:
-#              ignore:
-#                - develop
-#                - /feature-.*/
-#      - upload-s3:
-#          requires:
-#            - test
-#          context: AWS
-#          filters:
-#            branches:
-#              only: master
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only: master
+      - test:
+          requires:
+            - build-and-push-image
+          context: AWS
+          filters:
+            branches:
+              ignore:
+                - develop
+                - /feature-.*/
+      - upload-s3:
+          requires:
+            - test
+          context: AWS
+          filters:
+            branches:
+              only: master
       - deploy:
           context: AWS
+          requires:
+            - upload-s3
           filters:
             branches:
               only: master
