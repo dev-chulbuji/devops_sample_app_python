@@ -4,7 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
   aws-ecr: circleci/aws-ecr@7.2.0
   aws-s3: circleci/aws-s3@3.0.0
-  aws-code-deploy: circleci/aws-code-deploy@2.0.0
 
 commands:
   test:
@@ -38,10 +37,11 @@ commands:
             --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=$CIRCLE_BUILD_NUM.zip \
             --file-exists-behavior OVERWRITE
 
-executors:
-  circlecipython:
-    docker:
-      - image: circleci/python
+
+#executors:
+#  circlecipython:
+#    docker:
+#      - image: circleci/python
 
 jobs:
   test:
