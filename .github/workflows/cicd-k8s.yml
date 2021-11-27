@@ -20,7 +20,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
-        repository: https://github.com/dev-chulbuji/devops_k8s
+        repository: dev-chulbuji/devops_k8s
 
     - name: Update Image Tag in the related HelmChart values.yaml
       uses: fjogeleit/yaml-update-action@master
