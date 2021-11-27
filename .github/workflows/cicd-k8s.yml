@@ -30,8 +30,9 @@ jobs:
       - name: Push helm repo
         run: |
           cd deploy-k8s
-          git add .;
-          git commit -m "wip";
-          git config --global user.name "dev-chulbuji"
           git config --global user.email "dev-chulbuji@gmail.com"
+          git config --global user.name "dev-chulbuji"
+
+          git add .;
+          git commit --message "wip";
           git push origin master;
