@@ -83,7 +83,9 @@ jobs:
           git config --global user.email "dev-chulbuji@gmail.com"
           git config --global user.name "dev-chulbuji"
 
-          git add .
+          cat demo/values.yaml;
+          git status;
+          git add .;
           git commit --message "Update demo image tag";
           git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
           git push --prune https://token:$token@github.com/dev-chulbuji/devops_k8s.git
