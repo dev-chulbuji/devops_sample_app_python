@@ -25,6 +25,7 @@ jobs:
     - name: Update Image Tag in the related HelmChart values.yaml
       uses: fjogeleit/yaml-update-action@master
       with:
+        repository: dev-chulbuji/devops_k8s
         valueFile: 'demo/values.yaml'
         propertyPath: 'image.tag'
         value: $(cat VERSION)
