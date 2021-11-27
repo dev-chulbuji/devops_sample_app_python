@@ -69,18 +69,20 @@ jobs:
 
       - name: Replace image tag in helm values
         uses: mikefarah/yq@master
+        env:
+          TAG: ${{ steps.set-var.outputs.IMAGE_TAG }}
         with:
-          cmd: yq eval -i '.image.tag = ${{ steps.set-var.outputs.IMAGE_TAG }}' 'deploy-k8s/demo/values.yaml'
+          cmd: yq eval -i '.image.tag = $TAG' 'deploy-k8s/demo/values.yaml'
 
       - name: Push helm repo
         env:
           token: ${{ secrets.GH_TOKEN }}
+          message: "Update demo image tag to '${{ steps.set-var.outputs.IMAGE_TAG }}'"
         run: |
           cd deploy-k8s
           git config --global user.email "dev-chulbuji@gmail.com"
           git config --global user.name "dev-chulbuji"
 
-          git commit --all --message "wip";
-          git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | \
-              xargs -L1 git config --unset-all
+          git commit --all --message $message;
+          git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
           git push --prune https://token:$token@github.com/dev-chulbuji/devops_k8s.git
