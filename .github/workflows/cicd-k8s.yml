@@ -41,4 +41,4 @@ jobs:
           git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | \
               xargs -L1 git config --unset-all
 
-          git push --prune https://token:$token@github.com/dev-chulbuji/devops_k8s.git
+          git push origin master
