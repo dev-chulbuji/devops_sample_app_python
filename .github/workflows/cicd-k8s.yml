@@ -73,13 +73,13 @@ jobs:
       - name: Replace image tag in helm values
         uses: mikefarah/yq@master
         env:
-          TAG: ${{ jobs.ci.steps.set-var.outputs.IMAGE_TAG }}
+          IMAGE_TAG: ${{needs.ci.outputs.IMAGE_TAG}}
         with:
-          cmd: yq eval -i '.image.tag = env(TAG)' 'deploy-k8s/demo/values.yaml'
+          cmd: yq eval -i '.image.tag = env(IMAGE_TAG)' 'deploy-k8s/demo/values.yaml'
 
       - name: Push helm repo
         env:
-          token: ${{needs.ci.outputs.IMAGE_TAG}}
+          token: ${{ secrets.GH_TOKEN }}
         run: |
           cd deploy-k8s
           git config --global user.email "dev-chulbuji@gmail.com"
