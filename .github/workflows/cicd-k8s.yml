@@ -29,7 +29,7 @@ jobs:
 
       - name: Push helm repo
         run: |
-          cd k8s-deloy
+          cd deploy-k8s
           git add .;
           git commit -m "wip";
           git push origin master;
