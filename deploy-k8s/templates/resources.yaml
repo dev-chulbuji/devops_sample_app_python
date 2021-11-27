@@ -17,6 +17,8 @@ spec:
         name: {{ .Chart.Name }}
         ports:
         - containerPort: 80
+      imagePullSecrets:
+      - name: regcred
 
 ---
 
