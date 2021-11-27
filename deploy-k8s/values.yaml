@@ -1,0 +1,12 @@
+replicas: 1
+
+image:
+  repository: 657976307134.dkr.ecr.ap-northeast-2.amazonaws.com/demo
+  tag: latest
+
+service:
+  type: NodePort
+  protocol: TCP
+  targetPort: 8080
+  port: 8080
+  nodePort: 38080
