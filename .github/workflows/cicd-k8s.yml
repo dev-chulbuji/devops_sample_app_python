@@ -71,9 +71,9 @@ jobs:
       - name: Replace image tag in helm values
         uses: mikefarah/yq@master
         env:
-          TAG: 1.0.7
+          TAG: 1.0.8
         with:
-          cmd: yq eval -i '.image.tag = "1.0.7"' 'deploy-k8s/demo/values.yaml'
+          cmd: yq eval -i '.image.tag = "$TAG"' 'deploy-k8s/demo/values.yaml'
 
       - name: Push helm repo
         env:
