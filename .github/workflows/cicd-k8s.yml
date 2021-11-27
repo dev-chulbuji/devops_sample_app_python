@@ -77,12 +77,13 @@ jobs:
       - name: Push helm repo
         env:
           token: ${{ secrets.GH_TOKEN }}
-          message: "Update demo image tag to '${{ steps.set-var.outputs.IMAGE_TAG }}'"
+          message: "Update demo image tag to "
         run: |
           cd deploy-k8s
           git config --global user.email "dev-chulbuji@gmail.com"
           git config --global user.name "dev-chulbuji"
 
-          git commit --all --message $message;
+          git add .
+          git commit --message $message${{ steps.set-var.outputs.IMAGE_TAG }};
           git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
           git push --prune https://token:$token@github.com/dev-chulbuji/devops_k8s.git
