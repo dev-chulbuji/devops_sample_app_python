@@ -16,19 +16,21 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-    - name: Clone Deployments repo
-      uses: actions/checkout@v2
-      with:
-        repository: dev-chulbuji/devops_k8s
-        path: k8s-deploy
+      - name: Checkout Target Repository
+        uses: actions/checkout@v2
+        with:
+          repository: dev-chulbuji/devops_k8s
+          path: deploy-k8s
 
-    - name: Update Image Tag in the related HelmChart values.yaml
-      uses: fjogeleit/yaml-update-action@master
-      with:
-        repository: dev-chulbuji/devops_k8s
-        valueFile: 'demo/values.yaml'
-        propertyPath: 'image.tag'
-        value: $(cat VERSION)
-        commitChange: true
-        updateFile: true
-        workDir: k8s-deploy
+      - name: Update Image Version in the related HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: 'demo/values.yaml'
+          propertyPath: 'image.tag'
+          value: '1.0.3'
+          repository: dev-chulbuji/devops_k8s
+          branch: test
+          targetBranch: master
+          createPR: true
+          message: 'Update Image Version to ${{ steps.image.outputs.version }}'
+          workDir: deploy-k8s
