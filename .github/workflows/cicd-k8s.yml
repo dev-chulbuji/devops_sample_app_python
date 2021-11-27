@@ -16,11 +16,6 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Set var
-        id: set-var
-        run: |
-          echo ::set-output name=IMAGE_TAG::$(cat VERSION)
-
       - name: Checkout Target Repository
         uses: actions/checkout@v2
         with:
@@ -30,4 +25,4 @@ jobs:
       - name: Replace image tag in helm values
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.image.tag = ${{ steps.set-var.outputs.IMAGE_TAG }}' 'deploy-k8s/demo/values.yaml'
+          cmd: yq eval -i '.image.tag = 1.0.3' 'deploy-k8s/demo/values.yaml'
