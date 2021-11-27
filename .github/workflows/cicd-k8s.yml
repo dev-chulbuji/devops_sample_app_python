@@ -1,0 +1,32 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '.gitignore'
+      - '.dockerignore'
+      - 'README.md'
+#    paths:
+#      - '**.py'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone Deployments repo
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+        repository: https://github.com/dev-chulbuji/devops_k8s
+
+    - name: Update Image Tag in the related HelmChart values.yaml
+      uses: fjogeleit/yaml-update-action@master
+      with:
+        valueFile: 'demo/values.yaml'
+        propertyPath: 'image.tag'
+        value: $(cat VERSION)
+        commitChange: true
+        updateFile: true
