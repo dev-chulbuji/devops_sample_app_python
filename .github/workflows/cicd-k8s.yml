@@ -19,8 +19,8 @@ jobs:
     - name: Clone Deployments repo
       uses: actions/checkout@v2
       with:
-        fetch-depth: 1
         repository: dev-chulbuji/devops_k8s
+        path: k8s-deploy
 
     - name: Update Image Tag in the related HelmChart values.yaml
       uses: fjogeleit/yaml-update-action@master
@@ -31,3 +31,4 @@ jobs:
         value: $(cat VERSION)
         commitChange: true
         updateFile: true
+        workDir: k8s-deploy
