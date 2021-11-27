@@ -73,7 +73,7 @@ jobs:
         env:
           TAG: 1.0.8
         with:
-          cmd: yq eval -i '.image.tag = "$TAG"' 'deploy-k8s/demo/values.yaml'
+          cmd: yq eval -i '.image.tag = env(TAG)' 'deploy-k8s/demo/values.yaml'
 
       - name: Push helm repo
         env:
