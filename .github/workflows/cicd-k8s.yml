@@ -59,6 +59,7 @@ jobs:
           docker push ${{ steps.set-var.outputs.ECR_REGISTRY }}/${{ steps.set-var.outputs.ECR_REPOSITORY }}:${{ steps.set-var.outputs.IMAGE_TAG }}
 
   cd:
+    needs: [ci]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Target Repository
@@ -77,13 +78,13 @@ jobs:
       - name: Push helm repo
         env:
           token: ${{ secrets.GH_TOKEN }}
-          message: "Update demo image tag to "
+          message: "Update demo image tag"
         run: |
           cd deploy-k8s
           git config --global user.email "dev-chulbuji@gmail.com"
           git config --global user.name "dev-chulbuji"
 
           git add .
-          git commit --message $message${{ steps.set-var.outputs.IMAGE_TAG }};
+          git commit --message $message;
           git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
           git push --prune https://token:$token@github.com/dev-chulbuji/devops_k8s.git
