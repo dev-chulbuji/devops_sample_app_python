@@ -26,5 +26,3 @@ jobs:
         uses: mikefarah/yq@master
         with:
           cmd: yq eval -i '.image.tag = "1.0.3"' 'deploy-k8s/demo/values.yaml'
-
-      - name:
