@@ -15,14 +15,14 @@ commands:
             $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
             /root/.local/bin/pytest -v
       - persist_to_workspace:
-          root: ~/VERSION
+          root: .
           paths: VERSION
   cd:
     steps:
       - attach_workspace:
-          at: ~/VERSION
+          at: .
       - run: |
-          VERSION=`cat ~/VERSION`
+          VERSION=`cat VERSION`
           echo $VERSION
 
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz -O - |\
