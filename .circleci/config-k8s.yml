@@ -29,8 +29,6 @@ commands:
 
           git clone https://github.com/dev-chulbuji/devops_k8s.git && cd devops_k8s;
 
-          pwd;
-          ls -al;
           yq eval -i '.image.tag = env(VERSION)' 'demo/values.yaml';
 
           git config --global user.email "dev-chulbuji@gmail.com";
