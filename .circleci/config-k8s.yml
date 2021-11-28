@@ -63,19 +63,19 @@ jobs:
 workflows:
   cicd:
     jobs:
-#      - aws-ecr/build-and-push-image:
-#          name: build-and-push-image
-#          context: AWS
-#          checkout: true
-#          tag: $(cat VERSION)
-#          repo: demo
-#          filters:
-#            branches:
-#              only: master
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only: master
       - test:
           context: AWS
-#          requires:
-#            - build-and-push-image
+          requires:
+            - build-and-push-image
       - deploy:
           context: GIT
           requires:
