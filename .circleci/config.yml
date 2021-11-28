@@ -18,15 +18,18 @@ commands:
     steps:
       - run: |
           wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz -O - |\
-            tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
-          git clone https://github.com/dev-chulbuji/devops_k8s.git
-          cd devops_k8s
-          yq eval -i '.image.tag = "1.0.1"' 'demo/values.yaml'
-          git config --global user.email "dev-chulbuji@gmail.com"
-          git config --global user.name "dev-chulbuji"
+            tar xz && sudo mv yq_linux_amd64 /usr/bin/yq;
+
+          git clone https://github.com/dev-chulbuji/devops_k8s.git && cd devops_k8s;
+
+          yq eval -i '.image.tag = "1.0.1"' 'demo/values.yaml';
+
+          git config --global user.email "dev-chulbuji@gmail.com";
+          git config --global user.name "dev-chulbuji";
+
           git add demo/values.yaml;
           git commit --message "Update demo image tag";
-          git ps origin master
+          git push origin master;
 
 executors:
   circleciubuntu:
