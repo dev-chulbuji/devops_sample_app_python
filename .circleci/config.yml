@@ -65,6 +65,4 @@ workflows:
 #            - build-and-push-image
 #          context: AWS
       - deploy:
-#          requires:
-#            - test
-#          context: AWS
+          context: AWS
