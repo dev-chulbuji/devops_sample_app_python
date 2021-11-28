@@ -1,0 +1,83 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@2.0.3
+  aws-ecr: circleci/aws-ecr@7.2.0
+  aws-s3: circleci/aws-s3@3.0.0
+
+commands:
+  test:
+    steps:
+      - checkout
+      - run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
+      - run: |
+          docker run --rm \
+            $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
+            /root/.local/bin/pytest -v
+  upload-s3:
+    steps:
+      - checkout
+      - run: |
+          zip -j ./$CIRCLE_BUILD_NUM.zip \
+            deploy/appspec.yml \
+            deploy/scripts/kill_process.sh \
+            deploy/scripts/run_process.sh \
+            deploy/docker-compose.yml
+      - aws-s3/copy:
+          from: ./$CIRCLE_BUILD_NUM.zip
+          to: 's3://jenkins-slave-artifact-codebuild-s3'
+  create-codedeploy-deployment:
+    steps:
+      - run: |
+          aws deploy create-deployment \
+            --application-name demo-codedeploy-app \
+            --deployment-group-name dev-codedeploy-group \
+            --region $AWS_REGION \
+            --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=$CIRCLE_BUILD_NUM.zip \
+            --file-exists-behavior OVERWRITE
+
+
+#executors:
+#  circlecipython:
+#    docker:
+#      - image: circleci/python
+
+jobs:
+  test:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.7 # docker version
+      - test
+  deploy:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          profile-name: default
+      - upload-s3
+      - create-codedeploy-deployment
+
+workflows:
+  build-docker:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only: master
+      - test:
+          requires:
+            - build-and-push-image
+          context: AWS
+      - deploy:
+          requires:
+            - test
+          context: AWS

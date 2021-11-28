@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
   aws-ecr: circleci/aws-ecr@7.2.0
-  aws-s3: circleci/aws-s3@3.0.0
 
 commands:
   test:
@@ -15,33 +14,24 @@ commands:
           docker run --rm \
             $AWS_ECR_ACCOUNT_URL/$APP_NAME:$(cat VERSION) \
             /root/.local/bin/pytest -v
-  upload-s3:
-    steps:
-      - checkout
-      - run: |
-          zip -j ./$CIRCLE_BUILD_NUM.zip \
-            deploy/appspec.yml \
-            deploy/scripts/kill_process.sh \
-            deploy/scripts/run_process.sh \
-            deploy/docker-compose.yml
-      - aws-s3/copy:
-          from: ./$CIRCLE_BUILD_NUM.zip
-          to: 's3://jenkins-slave-artifact-codebuild-s3'
-  create-codedeploy-deployment:
+  cd:
     steps:
       - run: |
-          aws deploy create-deployment \
-            --application-name demo-codedeploy-app \
-            --deployment-group-name dev-codedeploy-group \
-            --region $AWS_REGION \
-            --s3-location bucket=jenkins-slave-artifact-codebuild-s3,bundleType=zip,key=$CIRCLE_BUILD_NUM.zip \
-            --file-exists-behavior OVERWRITE
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz -O - |\
+            tar xz && mv yq_linux_amd64 /usr/bin/yq
+          git clone https://github.com/dev-chulbuji/devops_k8s.git
+          cd devops_k8s
+          yq eval -i '.image.tag = "1.0.1"' 'demo/values.yaml'
+          git config --global user.email "dev-chulbuji@gmail.com"
+          git config --global user.name "dev-chulbuji"
+          git add demo/values.yaml;
+          git commit --message "Update demo image tag";
+          git ps origin master
 
-
-#executors:
-#  circlecipython:
-#    docker:
-#      - image: circleci/python
+executors:
+  circleciubutu:
+    machine:
+      - image: ubuntu-2004:202010-01
 
 jobs:
   test:
@@ -54,30 +44,27 @@ jobs:
           version: 20.10.7 # docker version
       - test
   deploy:
-    executor: aws-cli/default
+    executor: circleciubutu
     steps:
-      - aws-cli/setup:
-          profile-name: default
-      - upload-s3
-      - create-codedeploy-deployment
+      - cd
 
 workflows:
   build-docker:
     jobs:
-      - aws-ecr/build-and-push-image:
-          name: build-and-push-image
-          context: AWS
-          checkout: true
-          tag: $(cat VERSION)
-          repo: demo
-          filters:
-            branches:
-              only: master
-      - test:
-          requires:
-            - build-and-push-image
-          context: AWS
+#      - aws-ecr/build-and-push-image:
+#          name: build-and-push-image
+#          context: AWS
+#          checkout: true
+#          tag: $(cat VERSION)
+#          repo: demo
+#          filters:
+#            branches:
+#              only: master
+#      - test:
+#          requires:
+#            - build-and-push-image
+#          context: AWS
       - deploy:
-          requires:
-            - test
-          context: AWS
+#          requires:
+#            - test
+#          context: AWS
