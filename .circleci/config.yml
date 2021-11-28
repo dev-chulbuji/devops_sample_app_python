@@ -29,7 +29,7 @@ commands:
 
           git add demo/values.yaml;
           git commit --message "Update demo image tag";
-          git push origin master;
+          git push https://$GITHUB_TOKEN@github.com/dev-chulbuji/devops_k8s.git
 
 executors:
   circleciubuntu:
@@ -68,4 +68,4 @@ workflows:
 #            - build-and-push-image
 #          context: AWS
       - deploy:
-          context: AWS
+          context: GIT
