@@ -18,7 +18,7 @@ def create_app():
     }), 200
 
   @app.route("/eks")
-  def hello():
+  def hello_eks():
     return jsonify({
       "message": "Hello EKS !!\n"
     }), 200
