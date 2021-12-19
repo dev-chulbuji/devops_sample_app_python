@@ -30,6 +30,7 @@ commands:
           git clone https://github.com/dev-chulbuji/devops_k8s.git && cd devops_k8s;
 
           yq eval -i '.image.tag = env(VERSION)' 'demo/values.yaml';
+          yq eval -i '.image.tag = env(VERSION)' 'demo/values-eks.yaml';
 
           git config --global user.email "dev-chulbuji@gmail.com";
           git config --global user.name "dev-chulbuji";
@@ -58,23 +59,23 @@ jobs:
     steps:
       - cd
 
-#workflows:
-#  cicd:
-#    jobs:
-#      - aws-ecr/build-and-push-image:
-#          name: build-and-push-image
-#          context: AWS
-#          checkout: true
-#          tag: $(cat VERSION)
-#          repo: demo
-#          filters:
-#            branches:
-#              only: master
-#      - test:
-#          context: AWS
-#          requires:
-#            - build-and-push-image
-#      - deploy:
-#          context: GIT
-#          requires:
-#            - test
+workflows:
+  cicd:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          context: AWS
+          checkout: true
+          tag: $(cat VERSION)
+          repo: demo
+          filters:
+            branches:
+              only: release
+      - test:
+          context: AWS
+          requires:
+            - build-and-push-image
+      - deploy:
+          context: GIT
+          requires:
+            - test

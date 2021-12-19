@@ -70,12 +70,19 @@ jobs:
           repository: dev-chulbuji/devops_k8s
           path: deploy-k8s
 
-      - name: Replace image tag in helm values
+      - name: Replace image tag in helm values (LOCAL)
         uses: mikefarah/yq@master
         env:
           IMAGE_TAG: ${{needs.ci.outputs.IMAGE_TAG}}
         with:
           cmd: yq eval -i '.image.tag = env(IMAGE_TAG)' 'deploy-k8s/demo/values.yaml'
+
+      - name: Replace image tag in helm values (EKS)
+        uses: mikefarah/yq@master
+        env:
+          IMAGE_TAG: ${{needs.ci.outputs.IMAGE_TAG}}
+        with:
+          cmd: yq eval -i '.image.tag = env(IMAGE_TAG)' 'deploy-k8s/demo/values-eks.yaml'
 
       - name: Push helm repo
         env:
