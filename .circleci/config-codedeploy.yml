@@ -61,23 +61,23 @@ jobs:
       - upload-s3
       - create-codedeploy-deployment
 
-workflows:
-  cicd:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          name: build-and-push-image
-          context: AWS
-          checkout: true
-          tag: $(cat VERSION)
-          repo: demo
-          filters:
-            branches:
-              only: master
-      - test:
-          requires:
-            - build-and-push-image
-          context: AWS
-      - deploy:
-          requires:
-            - test
-          context: AWS
+#workflows:
+#  cicd:
+#    jobs:
+#      - aws-ecr/build-and-push-image:
+#          name: build-and-push-image
+#          context: AWS
+#          checkout: true
+#          tag: $(cat VERSION)
+#          repo: demo
+#          filters:
+#            branches:
+#              only: master
+#      - test:
+#          requires:
+#            - build-and-push-image
+#          context: AWS
+#      - deploy:
+#          requires:
+#            - test
+#          context: AWS
