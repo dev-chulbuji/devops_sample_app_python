@@ -1,1 +1,2 @@
 Flask==2.0.1
+flask-prometheus-metrics==1.0.0

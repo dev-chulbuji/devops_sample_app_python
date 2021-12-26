@@ -14,8 +14,7 @@ venv:
 pre-local-run:
 	pip install -r requirements/dev.txt
 local-run:
-	FLASK_APP=$(FLASK_APP) && \
-	flask run --host 0.0.0.0
+	FLASK_APP=$(FLASK_APP) && flask run --host 0.0.0.0 --port 8080
 post-local-run:
 
-local-run: pre-local-run local-run post-local-run
+run: pre-local-run local-run post-local-run
