@@ -27,10 +27,12 @@ def create_app():
 
   @app.route("/hello")
   def hello():
+    print("hello world")
     return jsonify({"message": "Hello world !!\n"}), 200
 
   @app.route("/hello/<username>")
   def hello_user(username):
+    print("username: ", username)
     if username == 'slow':
       time.sleep(randrange(1, 5))
     return jsonify({"message": "Hello %s\n" % username}), 200
